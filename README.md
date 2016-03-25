@@ -7,6 +7,10 @@ https://software.intel.com/en-us/articles/api-without-secrets-introduction-to-vu
 
 Special thanks to Slawomir Cygan for help and for patiently answering my many, many questions!
 
+## Drivers:
+
+Vulkan drivers and other related resources can be found at https://www.khronos.org/vulkan/
+
 ## Tutorials:
 
 ### [01 - The Beginning](./Project/Tutorial01/)
