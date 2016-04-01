@@ -284,7 +284,7 @@ namespace Tutorial {
       VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,             // VkStructureType                    sType
       nullptr,                                          // const void                        *pNext
       0,                                                // VkDeviceCreateFlags                flags
-      1,                                                // uint32_t                           queueCreateInfoCount
+      static_cast<uint32_t>(queue_create_infos.size()), // uint32_t                           queueCreateInfoCount
       &queue_create_infos[0],                           // const VkDeviceQueueCreateInfo     *pQueueCreateInfos
       0,                                                // uint32_t                           enabledLayerCount
       nullptr,                                          // const char * const                *ppEnabledLayerNames

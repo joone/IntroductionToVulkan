@@ -292,7 +292,7 @@ namespace Tutorial {
       nullptr,                                        // const void                  *pNext
       0,                                              // VkDeviceQueueCreateFlags     flags
       selected_graphics_queue_family_index,           // uint32_t                     queueFamilyIndex
-      static_cast<uint32_t>(queue_priorities.size( )), // uint32_t                     queueCount
+      static_cast<uint32_t>(queue_priorities.size()), // uint32_t                     queueCount
       &queue_priorities[0]                            // const float                 *pQueuePriorities
     } );
 
@@ -302,7 +302,7 @@ namespace Tutorial {
         nullptr,                                        // const void                  *pNext
         0,                                              // VkDeviceQueueCreateFlags     flags
         selected_present_queue_family_index,            // uint32_t                     queueFamilyIndex
-        static_cast<uint32_t>(queue_priorities.size( )), // uint32_t                     queueCount
+        static_cast<uint32_t>(queue_priorities.size()), // uint32_t                     queueCount
         &queue_priorities[0]                            // const float                 *pQueuePriorities
       } );
     }
@@ -315,7 +315,7 @@ namespace Tutorial {
       VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,             // VkStructureType                    sType
       nullptr,                                          // const void                        *pNext
       0,                                                // VkDeviceCreateFlags                flags
-      1,                                                // uint32_t                           queueCreateInfoCount
+      static_cast<uint32_t>(queue_create_infos.size()), // uint32_t                           queueCreateInfoCount
       &queue_create_infos[0],                           // const VkDeviceQueueCreateInfo     *pQueueCreateInfos
       0,                                                // uint32_t                           enabledLayerCount
       nullptr,                                          // const char * const                *ppEnabledLayerNames
