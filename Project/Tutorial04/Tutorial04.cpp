@@ -133,7 +133,7 @@ namespace Tutorial {
           i                                         // uint32_t                   memoryTypeIndex
         };
 
-        if( vkAllocateMemory( GetDevice( ), &memory_allocate_info, nullptr, memory ) == VK_SUCCESS ) {
+        if( vkAllocateMemory( GetDevice(), &memory_allocate_info, nullptr, memory ) == VK_SUCCESS ) {
           return true;
         }
       }

@@ -78,8 +78,8 @@ namespace Tutorial {
 
 #define VK_EXPORTED_FUNCTION( fun )                                     \
     if( !(fun = (PFN_##fun)LoadProcAddress( VulkanLibrary, #fun )) ) {  \
-    printf( "Could not load exported function: " #fun "!\n" );          \
-    return false;                                                       \
+      printf( "Could not load exported function: " #fun "!\n" );        \
+      return false;                                                     \
     }
 
 #include "ListOfFunctions.inl"
