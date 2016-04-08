@@ -550,7 +550,7 @@ namespace Tutorial {
     };
 
     if( vkQueueSubmit( GetGraphicsQueue().Handle, 1, &submit_rendering_info, VK_NULL_HANDLE ) != VK_SUCCESS ) {
-      printf( "Error occured during submition of command buffer with vertex buffer barrier!!\n" );
+      printf( "Error occurred during submission of command buffer with vertex buffer barrier!!\n" );
       return false;
     }
 

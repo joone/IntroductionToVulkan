@@ -580,7 +580,7 @@ namespace Tutorial {
 
   VkSurfaceFormatKHR VulkanCommon::GetSwapChainFormat( std::vector<VkSurfaceFormatKHR> &surface_formats ) {
     // If the list contains only one entry with undefined format
-    // it mean that there are no preferred surface formats and any can be choosen
+    // it means that there are no preferred surface formats and any can be chosen
     if( (surface_formats.size() == 1) &&
         (surface_formats[0].format == VK_FORMAT_UNDEFINED) ) {
       return{ VK_FORMAT_R8G8B8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR };
