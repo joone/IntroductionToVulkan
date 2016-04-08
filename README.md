@@ -17,13 +17,14 @@ Vulkan drivers and other related resources can be found at https://www.khronos.o
 <img src="./Document/Images/01 - The Beginning.png" height="96px" align="right">
 
 #### Introduction to a Vulkan world
-#####https://software.intel.com/en-us/api-without-secrets-introduction-to-vulkan-part-1
+##### https://software.intel.com/en-us/api-without-secrets-introduction-to-vulkan-part-1
 Tutorial presents how to create all resources necessary to use Vulkan inside our application: function pointers loading, Vulkan instance creation, physical device enumeration, logical device creation and queue set up.
 
 ### [02 - Swap chain](./Project/Tutorial02/)
 <img src="./Document/Images/02 - Swap Chain.png" height="96px" align="right">
 
 #### Integrating Vulkan with OS
+##### https://software.intel.com/en-us/api-without-secrets-introduction-to-vulkan-part-2
 This lesson focuses on a swap chain creation. Swap chain enables us to display Vulkan-generated image in an application window. To display anything simple command buffers are allocated and recorded.
 
 ### [03 - First triangle](./Project/Tutorial03/)
