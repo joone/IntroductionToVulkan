@@ -18,18 +18,17 @@
 #include <xcb/xcb.h>
 #include <dlfcn.h>
 #include <cstdlib>
-#include <cstring>
 
 #elif defined(VK_USE_PLATFORM_XLIB_KHR)
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <dlfcn.h>
 #include <cstdlib>
-#include <cstring>
 
 #endif
 
-#include <cstdio>
+#include <cstring>
+#include <iostream>
 
 namespace OS {
 

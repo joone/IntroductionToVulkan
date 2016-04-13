@@ -13,7 +13,6 @@
 
 #include <string>
 #include <vector>
-#include <fstream>
 #include "vulkan.h"
 
 namespace Tools {

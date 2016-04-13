@@ -67,7 +67,7 @@ namespace Tutorial {
     };
 
     if( vkCreateRenderPass( GetDevice(), &render_pass_create_info, nullptr, &Vulkan.RenderPass ) != VK_SUCCESS ) {
-      printf( "Could not create render pass!\n" );
+      std::cout << "Could not create render pass!" << std::endl;
       return false;
     }
 
@@ -102,7 +102,7 @@ namespace Tutorial {
       };
 
       if( vkCreateImageView( GetDevice(), &image_view_create_info, nullptr, &Vulkan.FramebufferObjects[i].ImageView ) != VK_SUCCESS ) {
-        printf( "Could not create image view for framebuffer!\n" );
+        std::cout << "Could not create image view for framebuffer!" << std::endl;
         return false;
       }
 
@@ -119,7 +119,7 @@ namespace Tutorial {
       };
 
       if( vkCreateFramebuffer( GetDevice(), &framebuffer_create_info, nullptr, &Vulkan.FramebufferObjects[i].Handle ) != VK_SUCCESS ) {
-        printf( "Could not create a framebuffer!\n" );
+        std::cout << "Could not create a framebuffer!" << std::endl;
         return false;
       }
     }
@@ -142,7 +142,7 @@ namespace Tutorial {
 
     VkShaderModule shader_module;
     if( vkCreateShaderModule( GetDevice(), &shader_module_create_info, nullptr, &shader_module ) != VK_SUCCESS ) {
-      printf( "Could not create shader module from a %s file!\n", filename );
+      std::cout << "Could not create shader module from a \"" << filename << "\" file!" << std::endl;
       return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
     }
 
@@ -162,7 +162,7 @@ namespace Tutorial {
 
     VkPipelineLayout pipeline_layout;
     if( vkCreatePipelineLayout( GetDevice(), &layout_create_info, nullptr, &pipeline_layout ) != VK_SUCCESS ) {
-      printf( "Could not create pipeline layout!\n" );
+      std::cout << "Could not create pipeline layout!" << std::endl;
       return Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>();
     }
 
@@ -327,7 +327,7 @@ namespace Tutorial {
     };
 
     if( vkCreateGraphicsPipelines( GetDevice(), VK_NULL_HANDLE, 1, &pipeline_create_info, nullptr, &Vulkan.GraphicsPipeline ) != VK_SUCCESS ) {
-      printf( "Could not create graphics pipeline!\n" );
+      std::cout << "Could not create graphics pipeline!" << std::endl;
       return false;
     }
     return true;
@@ -335,7 +335,7 @@ namespace Tutorial {
 
   bool Tutorial03::CreateCommandBuffers() {
     if( !CreateCommandPool( GetGraphicsQueue().FamilyIndex, &Vulkan.GraphicsCommandPool ) ) {
-      printf( "Could not create command pool!\n" );
+      std::cout << "Could not create command pool!" << std::endl;
       return false;
     }
 
@@ -343,7 +343,7 @@ namespace Tutorial {
     Vulkan.GraphicsCommandBuffers.resize( image_count, VK_NULL_HANDLE );
 
     if( !AllocateCommandBuffers( Vulkan.GraphicsCommandPool, image_count, &Vulkan.GraphicsCommandBuffers[0] ) ) {
-      printf( "Could not allocate command buffers!\n" );
+      std::cout << "Could not allocate command buffers!" << std::endl;
       return false;
     }
     return true;
@@ -462,7 +462,7 @@ namespace Tutorial {
         vkCmdPipelineBarrier( Vulkan.GraphicsCommandBuffers[i], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_draw_to_present );
       }
       if( vkEndCommandBuffer( Vulkan.GraphicsCommandBuffers[i] ) != VK_SUCCESS ) {
-        printf( "Could not record command buffer!\n" );
+        std::cout << "Could not record command buffer!" << std::endl;
         return false;
       }
     }
@@ -503,7 +503,7 @@ namespace Tutorial {
       case VK_ERROR_OUT_OF_DATE_KHR:
         return OnWindowSizeChanged();
       default:
-        printf( "Problem occurred during swap chain image acquisition!\n" );
+        std::cout << "Problem occurred during swap chain image acquisition!" << std::endl;
         return false;
     }
 
@@ -543,7 +543,7 @@ namespace Tutorial {
       case VK_SUBOPTIMAL_KHR:
         return OnWindowSizeChanged();
       default:
-        printf( "Problem occurred during image presentation!\n" );
+        std::cout << "Problem occurred during image presentation!" << std::endl;
         return false;
     }
 

@@ -67,7 +67,7 @@ namespace Tutorial {
     };
 
     if( vkCreateRenderPass( GetDevice(), &render_pass_create_info, nullptr, &Vulkan.RenderPass ) != VK_SUCCESS ) {
-      printf( "Could not create render pass!\n" );
+      std::cout << "Could not create render pass!" << std::endl;
       return false;
     }
 
@@ -99,17 +99,17 @@ namespace Tutorial {
     };
 
     if( vkCreateImage( GetDevice(), &image_create_info, nullptr, &Vulkan.Image.Handle ) != VK_SUCCESS ) {
-      printf( "Could not create an image!\n" );
+      std::cout << "Could not create an image!" << std::endl;
       return false;
     }
 
     if( !AllocateImageMemory( Vulkan.Image.Handle, &Vulkan.Image.Memory ) ) {
-      printf( "Could not allocate memory for an image!\n" );
+      std::cout << "Could not allocate memory for an image!" << std::endl;
       return false;
     }
 
     if( vkBindImageMemory( GetDevice(), Vulkan.Image.Handle, Vulkan.Image.Memory, 0 ) != VK_SUCCESS ) {
-      printf( "Could not bind memory for an image!\n" );
+      std::cout << "Could not bind memory for an image!" << std::endl;
       return false;
     }
 
@@ -165,7 +165,7 @@ namespace Tutorial {
     };
 
     if( vkCreateImageView( GetDevice(), &image_view_create_info, nullptr, &Vulkan.Image.View ) != VK_SUCCESS ) {
-      printf( "Could not create an image view!\n" );
+      std::cout << "Could not create an image view!" << std::endl;
       return false;
     }
 
@@ -182,7 +182,7 @@ namespace Tutorial {
     };
 
     if( vkCreateFramebuffer( GetDevice(), &framebuffer_create_info, nullptr, &Vulkan.Framebuffer ) != VK_SUCCESS ) {
-      printf( "Could not create a framebuffer!\n" );
+      std::cout << "Could not create a framebuffer!" << std::endl;
       return false;
     }
     return true;
@@ -204,7 +204,7 @@ namespace Tutorial {
 
     VkShaderModule shader_module;
     if( vkCreateShaderModule( GetDevice(), &shader_module_create_info, nullptr, &shader_module ) != VK_SUCCESS ) {
-      printf( "Could not create shader module from a %s file!\n", filename );
+      std::cout << "Could not create shader module from a \"" << filename << "\" file!" << std::endl;
       return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
     }
 
@@ -224,7 +224,7 @@ namespace Tutorial {
 
     VkPipelineLayout pipeline_layout;
     if( vkCreatePipelineLayout( GetDevice(), &layout_create_info, nullptr, &pipeline_layout ) != VK_SUCCESS ) {
-      printf( "Could not create pipeline layout!\n" );
+      std::cout << "Could not create pipeline layout!" << std::endl;
       return Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>();
     }
 
@@ -410,7 +410,7 @@ namespace Tutorial {
     };
 
     if( vkCreateGraphicsPipelines( GetDevice(), VK_NULL_HANDLE, 1, &pipeline_create_info, nullptr, &Vulkan.GraphicsPipeline ) != VK_SUCCESS ) {
-      printf( "Could not create graphics pipeline!\n" );
+      std::cout << "Could not create graphics pipeline!" << std::endl;
       return false;
     }
     return true;
@@ -450,23 +450,23 @@ namespace Tutorial {
     };
 
     if( vkCreateBuffer( GetDevice(), &buffer_create_info, nullptr, &Vulkan.VertexBuffer.Handle ) != VK_SUCCESS ) {
-      printf( "Could not create a vertex buffer!\n" );
+      std::cout << "Could not create a vertex buffer!" << std::endl;
       return false;
     }
 
     if( !AllocateBufferMemory( Vulkan.VertexBuffer.Handle, &Vulkan.VertexBuffer.Memory ) ) {
-      printf( "Could not allocate memory for a vertex buffer!\n" );
+      std::cout << "Could not allocate memory for a vertex buffer!" << std::endl;
       return false;
     }
 
     if( vkBindBufferMemory( GetDevice(), Vulkan.VertexBuffer.Handle, Vulkan.VertexBuffer.Memory, 0 ) != VK_SUCCESS ) {
-      printf( "Could not bind memory for a vertex buffer!\n" );
+      std::cout << "Could not bind memory for a vertex buffer!" << std::endl;
       return false;
     }
 
     void *vertex_buffer_memory_pointer;
     if( vkMapMemory( GetDevice(), Vulkan.VertexBuffer.Memory, 0, Vulkan.VertexBuffer.Size, 0, &vertex_buffer_memory_pointer ) != VK_SUCCESS ) {
-      printf( "Could not map memory and upload data to a vertex buffer!\n" );
+      std::cout << "Could not map memory and upload data to a vertex buffer!" << std::endl;
       return false;
     }
 
@@ -475,7 +475,7 @@ namespace Tutorial {
     vkUnmapMemory( GetDevice(), Vulkan.VertexBuffer.Memory );
 
     if( !CommitMemoryChanges( Vulkan.VertexBuffer.Handle, Vulkan.VertexBuffer.Size ) ) {
-      printf( "Could not setup a barrier for a vertex buffer!\n" );
+      std::cout << "Could not setup a barrier for a vertex buffer!" << std::endl;
       return false;
     }
 
@@ -533,7 +533,7 @@ namespace Tutorial {
     vkCmdPipelineBarrier( Vulkan.CopyingCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 1, &barrier_from_host_write_to_attribute_read, 0, nullptr );
 
     if( vkEndCommandBuffer( Vulkan.CopyingCommandBuffer ) != VK_SUCCESS ) {
-      printf( "Could not record command with buffer barrier!\n" );
+      std::cout << "Could not record command with buffer barrier!" << std::endl;
       return false;
     }
 
@@ -550,7 +550,7 @@ namespace Tutorial {
     };
 
     if( vkQueueSubmit( GetGraphicsQueue().Handle, 1, &submit_rendering_info, VK_NULL_HANDLE ) != VK_SUCCESS ) {
-      printf( "Error occurred during submission of command buffer with vertex buffer barrier!!\n" );
+      std::cout << "Error occurred during submission of command buffer with vertex buffer barrier!!" << std::endl;
       return false;
     }
 
@@ -566,7 +566,7 @@ namespace Tutorial {
       VK_FENCE_CREATE_SIGNALED_BIT                  // VkFenceCreateFlags           flags
     };
     if( vkCreateFence( GetDevice(), &fence_create_info, nullptr, &Vulkan.Fence ) != VK_SUCCESS ) {
-      printf( "Could not create a fence!\n" );
+      std::cout << "Could not create a fence!" << std::endl;
       return false;
     }
     return true;
@@ -574,15 +574,15 @@ namespace Tutorial {
 
   bool Tutorial04::CreateCommandBuffers() {
     if( !CreateCommandPool( GetGraphicsQueue().FamilyIndex, &Vulkan.GraphicsCommandPool ) ) {
-      printf( "Could not create command pool!\n" );
+      std::cout << "Could not create command pool!" << std::endl;
       return false;
     }
     if( !AllocateCommandBuffers( Vulkan.GraphicsCommandPool, 1, &Vulkan.RenderingCommandBuffer ) ) {
-      printf( "Could not allocate rendering command buffer!\n" );
+      std::cout << "Could not allocate rendering command buffer!" << std::endl;
       return false;
     }
     if( !AllocateCommandBuffers( Vulkan.GraphicsCommandPool, 1, &Vulkan.CopyingCommandBuffer ) ) {
-      printf( "Could not allocate copying command buffer!\n" );
+      std::cout << "Could not allocate copying command buffer!" << std::endl;
       return false;
     }
     return true;
@@ -662,7 +662,7 @@ namespace Tutorial {
     vkCmdEndRenderPass( Vulkan.RenderingCommandBuffer );
 
     if( vkEndCommandBuffer( Vulkan.RenderingCommandBuffer ) != VK_SUCCESS ) {
-      printf( "Could not record drawing command buffer!\n" );
+      std::cout << "Could not record drawing command buffer!" << std::endl;
       return false;
     }
     return true;
@@ -670,7 +670,7 @@ namespace Tutorial {
 
   bool Tutorial04::RecordCopyingCommandBuffer( VkImage swap_chain_image ) {
     if( vkWaitForFences( GetDevice(), 1, &Vulkan.Fence, VK_FALSE, 1000000000 ) != VK_SUCCESS ) {
-      printf( "Waiting for fence takes too long!\n" );
+      std::cout << "Waiting for fence takes too long!" << std::endl;
       return false;
     }
     vkResetFences( GetDevice(), 1, &Vulkan.Fence );
@@ -755,7 +755,7 @@ namespace Tutorial {
     vkCmdPipelineBarrier( Vulkan.CopyingCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_transfer_dst_to_present );
 
     if( vkEndCommandBuffer( Vulkan.CopyingCommandBuffer ) != VK_SUCCESS ) {
-      printf( "Could not record copying command buffer!\n" );
+      std::cout << "Could not record copying command buffer!" << std::endl;
       return false;
     }
     return true;
@@ -779,7 +779,7 @@ namespace Tutorial {
       case VK_ERROR_OUT_OF_DATE_KHR:
         return OnWindowSizeChanged();
       default:
-        printf( "Problem occurred during swap chain image acquisition!\n" );
+        std::cout << "Problem occurred during swap chain image acquisition!" << std::endl;
         return false;
     }
 
@@ -839,7 +839,7 @@ namespace Tutorial {
       case VK_SUBOPTIMAL_KHR:
         return OnWindowSizeChanged();
       default:
-        printf( "Problem occurred during image presentation!\n" );
+        std::cout << "Problem occurred during image presentation!" << std::endl;
         return false;
     }
 

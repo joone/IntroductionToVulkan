@@ -8,7 +8,6 @@
 // Intel does not assume any responsibility for any errors which may appear in this software
 // nor any responsibility to update it.
 
-#include <cstring>
 #include "VulkanCommon.h"
 #include "VulkanFunctions.h"
 
@@ -104,7 +103,7 @@ namespace Tutorial {
 #endif
 
     if( VulkanLibrary == nullptr ) {
-      printf( "Could not load Vulkan library!\n" );
+      std::cout << "Could not load Vulkan library!" << std::endl;
       return false;
     }
     return true;
@@ -117,10 +116,10 @@ namespace Tutorial {
     #define LoadProcAddress dlsym
 #endif
 
-#define VK_EXPORTED_FUNCTION( fun )                                     \
-    if( !(fun = (PFN_##fun)LoadProcAddress( VulkanLibrary, #fun )) ) {  \
-      printf( "Could not load exported function: " #fun "!\n" );        \
-      return false;                                                     \
+#define VK_EXPORTED_FUNCTION( fun )                                                   \
+    if( !(fun = (PFN_##fun)LoadProcAddress( VulkanLibrary, #fun )) ) {                \
+      std::cout << "Could not load exported function: " << #fun << "!" << std::endl;  \
+      return false;                                                                   \
     }
 
 #include "ListOfFunctions.inl"
@@ -129,10 +128,10 @@ namespace Tutorial {
   }
 
   bool VulkanCommon::LoadGlobalLevelEntryPoints() {
-#define VK_GLOBAL_LEVEL_FUNCTION( fun )                                 \
-    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( nullptr, #fun )) ) {  \
-      printf( "Could not load global level function: " #fun "!\n" );    \
-      return false;                                                     \
+#define VK_GLOBAL_LEVEL_FUNCTION( fun )                                                   \
+    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( nullptr, #fun )) ) {                    \
+      std::cout << "Could not load global level function: " << #fun << "!" << std::endl;  \
+      return false;                                                                       \
     }
 
 #include "ListOfFunctions.inl"
@@ -144,13 +143,13 @@ namespace Tutorial {
     uint32_t extensions_count = 0;
     if( (vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, nullptr ) != VK_SUCCESS) ||
         (extensions_count == 0) ) {
-      printf( "Error occurred during instance extensions enumeration!\n" );
+      std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
       return false;
     }
 
     std::vector<VkExtensionProperties> available_extensions( extensions_count );
     if( vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, &available_extensions[0] ) != VK_SUCCESS ) {
-      printf( "Error occurred during instance extensions enumeration!\n" );
+      std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
       return false;
     }
 
@@ -167,7 +166,7 @@ namespace Tutorial {
 
     for( size_t i = 0; i < extensions.size(); ++i ) {
       if( !CheckExtensionAvailability( extensions[i], available_extensions ) ) {
-        printf( "Could not find instance extension named \"%s\"!\n", extensions[i] );
+        std::cout << "Could not find instance extension named \"" << extensions[i] << "\"!" << std::endl;
         return false;
       }
     }
@@ -194,17 +193,17 @@ namespace Tutorial {
     };
 
     if( vkCreateInstance( &instance_create_info, nullptr, &Vulkan.Instance ) != VK_SUCCESS ) {
-      printf( "Could not create Vulkan instance!\n" );
+      std::cout << "Could not create Vulkan instance!" << std::endl;
       return false;
     }
     return true;
   }
 
   bool VulkanCommon::LoadInstanceLevelEntryPoints() {
-#define VK_INSTANCE_LEVEL_FUNCTION( fun )                                       \
-    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( Vulkan.Instance, #fun )) ) {  \
-      printf( "Could not load instance level function: " #fun "\n" );           \
-      return false;                                                             \
+#define VK_INSTANCE_LEVEL_FUNCTION( fun )                                                   \
+    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( Vulkan.Instance, #fun )) ) {              \
+      std::cout << "Could not load instance level function: " << #fun << "!" << std::endl;  \
+      return false;                                                                         \
     }
 
 #include "ListOfFunctions.inl"
@@ -253,7 +252,7 @@ namespace Tutorial {
 
 #endif
 
-    printf( "Could not create presentation surface!\n" );
+    std::cout << "Could not create presentation surface!" << std::endl;
     return false;
   }
 
@@ -261,13 +260,13 @@ namespace Tutorial {
     uint32_t num_devices = 0;
     if( (vkEnumeratePhysicalDevices( Vulkan.Instance, &num_devices, nullptr ) != VK_SUCCESS) ||
         (num_devices == 0) ) {
-      printf( "Error occurred during physical devices enumeration!\n" );
+      std::cout << "Error occurred during physical devices enumeration!" << std::endl;
       return false;
     }
 
     std::vector<VkPhysicalDevice> physical_devices( num_devices );
     if( vkEnumeratePhysicalDevices( Vulkan.Instance, &num_devices, &physical_devices[0] ) != VK_SUCCESS ) {
-      printf( "Error occurred during physical devices enumeration!\n" );
+      std::cout << "Error occurred during physical devices enumeration!" << std::endl;
       return false;
     }
 
@@ -280,7 +279,7 @@ namespace Tutorial {
       }
     }
     if( Vulkan.PhysicalDevice == VK_NULL_HANDLE ) {
-      printf( "Could not select physical device based on the chosen properties!\n" );
+      std::cout << "Could not select physical device based on the chosen properties!" << std::endl;
       return false;
     }
 
@@ -288,12 +287,12 @@ namespace Tutorial {
     std::vector<float> queue_priorities = { 1.0f };
 
     queue_create_infos.push_back( {
-      VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,     // VkStructureType              sType
-      nullptr,                                        // const void                  *pNext
-      0,                                              // VkDeviceQueueCreateFlags     flags
-      selected_graphics_queue_family_index,           // uint32_t                     queueFamilyIndex
-      static_cast<uint32_t>(queue_priorities.size()), // uint32_t                     queueCount
-      &queue_priorities[0]                            // const float                 *pQueuePriorities
+      VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,       // VkStructureType              sType
+      nullptr,                                          // const void                  *pNext
+      0,                                                // VkDeviceQueueCreateFlags     flags
+      selected_graphics_queue_family_index,             // uint32_t                     queueFamilyIndex
+      static_cast<uint32_t>(queue_priorities.size()),   // uint32_t                     queueCount
+      &queue_priorities[0]                              // const float                 *pQueuePriorities
     } );
 
     if( selected_graphics_queue_family_index != selected_present_queue_family_index ) {
@@ -325,7 +324,7 @@ namespace Tutorial {
     };
 
     if( vkCreateDevice( Vulkan.PhysicalDevice, &device_create_info, nullptr, &Vulkan.Device ) != VK_SUCCESS ) {
-      printf( "Could not create Vulkan device!\n" );
+      std::cout << "Could not create Vulkan device!" << std::endl;
       return false;
     }
 
@@ -338,13 +337,13 @@ namespace Tutorial {
     uint32_t extensions_count = 0;
     if( (vkEnumerateDeviceExtensionProperties( physical_device, nullptr, &extensions_count, nullptr ) != VK_SUCCESS) ||
         (extensions_count == 0) ) {
-      printf( "Error occurred during physical device %p extensions enumeration!\n", physical_device );
+      std::cout << "Error occurred during physical device " << physical_device << " extensions enumeration!" << std::endl;
       return false;
     }
 
     std::vector<VkExtensionProperties> available_extensions( extensions_count );
     if( vkEnumerateDeviceExtensionProperties( physical_device, nullptr, &extensions_count, &available_extensions[0] ) != VK_SUCCESS ) {
-      printf( "Error occurred during physical device %p extensions enumeration!\n", physical_device );
+      std::cout << "Error occurred during physical device " << physical_device << " extensions enumeration!" << std::endl;
       return false;
     }
 
@@ -354,7 +353,7 @@ namespace Tutorial {
 
     for( size_t i = 0; i < device_extensions.size(); ++i ) {
       if( !CheckExtensionAvailability( device_extensions[i], available_extensions ) ) {
-        printf( "Physical device %p doesn't support extension named \"%s\"!\n", physical_device, device_extensions[i] );
+        std::cout << "Physical device " << physical_device << " doesn't support extension named \"" << device_extensions[i] << "\"!" << std::endl;
         return false;
       }
     }
@@ -369,14 +368,14 @@ namespace Tutorial {
 
     if( (major_version < 1) &&
         (device_properties.limits.maxImageDimension2D < 4096) ) {
-      printf( "Physical device %p doesn't support required parameters!\n", physical_device );
+      std::cout << "Physical device " << physical_device << " doesn't support required parameters!" << std::endl;
       return false;
     }
 
     uint32_t queue_families_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties( physical_device, &queue_families_count, nullptr );
     if( queue_families_count == 0 ) {
-      printf( "Physical device %p doesn't have any queue families!\n", physical_device );
+      std::cout << "Physical device " << physical_device << " doesn't have any queue families!" << std::endl;
       return false;
     }
 
@@ -418,7 +417,7 @@ namespace Tutorial {
     // If this device doesn't support queues with graphics and present capabilities don't use it
     if( (graphics_queue_family_index == UINT32_MAX) ||
         (present_queue_family_index == UINT32_MAX) ) {
-      printf( "Could not find queue families with required properties on physical device %p!\n", physical_device );
+      std::cout << "Could not find queue families with required properties on physical device " << physical_device << "!" << std::endl;
       return false;
     }
 
@@ -428,10 +427,10 @@ namespace Tutorial {
   }
 
   bool VulkanCommon::LoadDeviceLevelEntryPoints() {
-#define VK_DEVICE_LEVEL_FUNCTION( fun )                                     \
-    if( !(fun = (PFN_##fun)vkGetDeviceProcAddr( Vulkan.Device, #fun )) ) {  \
-      printf( "Could not load device level function: " #fun "!\n" );        \
-      return false;                                                         \
+#define VK_DEVICE_LEVEL_FUNCTION( fun )                                                   \
+    if( !(fun = (PFN_##fun)vkGetDeviceProcAddr( Vulkan.Device, #fun )) ) {                \
+      std::cout << "Could not load device level function: " << #fun << "!" << std::endl;  \
+      return false;                                                                       \
     }
 
 #include "ListOfFunctions.inl"
@@ -452,33 +451,33 @@ namespace Tutorial {
 
     VkSurfaceCapabilitiesKHR surface_capabilities;
     if( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( Vulkan.PhysicalDevice, Vulkan.PresentationSurface, &surface_capabilities ) != VK_SUCCESS ) {
-      printf( "Could not check presentation surface capabilities!\n" );
+      std::cout << "Could not check presentation surface capabilities!" << std::endl;
       return false;
     }
 
     uint32_t formats_count;
     if( (vkGetPhysicalDeviceSurfaceFormatsKHR( Vulkan.PhysicalDevice, Vulkan.PresentationSurface, &formats_count, nullptr ) != VK_SUCCESS) ||
         (formats_count == 0) ) {
-      printf( "Error occurred during presentation surface formats enumeration!\n" );
+      std::cout << "Error occurred during presentation surface formats enumeration!" << std::endl;
       return false;
     }
 
     std::vector<VkSurfaceFormatKHR> surface_formats( formats_count );
     if( vkGetPhysicalDeviceSurfaceFormatsKHR( Vulkan.PhysicalDevice, Vulkan.PresentationSurface, &formats_count, &surface_formats[0] ) != VK_SUCCESS ) {
-      printf( "Error occurred during presentation surface formats enumeration!\n" );
+      std::cout << "Error occurred during presentation surface formats enumeration!" << std::endl;
       return false;
     }
 
     uint32_t present_modes_count;
     if( (vkGetPhysicalDeviceSurfacePresentModesKHR( Vulkan.PhysicalDevice, Vulkan.PresentationSurface, &present_modes_count, nullptr ) != VK_SUCCESS) ||
         (present_modes_count == 0) ) {
-      printf( "Error occurred during presentation surface present modes enumeration!\n" );
+      std::cout << "Error occurred during presentation surface present modes enumeration!" << std::endl;
       return false;
     }
 
     std::vector<VkPresentModeKHR> present_modes( present_modes_count );
     if( vkGetPhysicalDeviceSurfacePresentModesKHR( Vulkan.PhysicalDevice, Vulkan.PresentationSurface, &present_modes_count, &present_modes[0] ) != VK_SUCCESS ) {
-      printf( "Error occurred during presentation surface present modes enumeration!\n" );
+      std::cout << "Error occurred during presentation surface present modes enumeration!" << std::endl;
       return false;
     }
 
@@ -490,8 +489,10 @@ namespace Tutorial {
     VkPresentModeKHR              desired_present_mode = GetSwapChainPresentMode( present_modes );
     VkSwapchainKHR                old_swap_chain = Vulkan.SwapChain.Handle;
 
-    if( static_cast<int>(desired_usage) == 0 ) {
-      printf( "TRANSFER_DST image usage is not supported by the swap chain!" );
+    if( static_cast<int>(desired_usage) == -1 ) {
+      return false;
+    }
+    if( static_cast<int>(desired_present_mode) == -1 ) {
       return false;
     }
 
@@ -517,7 +518,7 @@ namespace Tutorial {
     };
 
     if( vkCreateSwapchainKHR( Vulkan.Device, &swap_chain_create_info, nullptr, &Vulkan.SwapChain.Handle ) != VK_SUCCESS ) {
-      printf( "Could not create swap chain!\n" );
+      std::cout << "Could not create swap chain!" << std::endl;
       return false;
     }
     if( old_swap_chain != VK_NULL_HANDLE ) {
@@ -529,12 +530,12 @@ namespace Tutorial {
     uint32_t image_count = 0;
     if( (vkGetSwapchainImagesKHR( Vulkan.Device, Vulkan.SwapChain.Handle, &image_count, nullptr ) != VK_SUCCESS) ||
         (image_count == 0) ) {
-      printf( "Could not get swap chain images!\n" );
+      std::cout << "Could not get swap chain images!" << std::endl;
       return false;
     }
     Vulkan.SwapChain.Images.resize( image_count );
     if( vkGetSwapchainImagesKHR( Vulkan.Device, Vulkan.SwapChain.Handle, &image_count, &Vulkan.SwapChain.Images[0] ) != VK_SUCCESS ) {
-      printf( "Could not get swap chain images!\n" );
+      std::cout << "Could not get swap chain images!" << std::endl;
       return false;
     }
 
@@ -550,7 +551,7 @@ namespace Tutorial {
 
     if( (vkCreateSemaphore( Vulkan.Device, &semaphore_create_info, nullptr, &Vulkan.ImageAvailableSemaphore ) != VK_SUCCESS) ||
         (vkCreateSemaphore( Vulkan.Device, &semaphore_create_info, nullptr, &Vulkan.RenderingFinishedSemaphore ) != VK_SUCCESS) ) {
-      printf( "Could not create semaphores!\n" );
+      std::cout << "Could not create semaphores!" << std::endl;
       return false;
     }
 
@@ -628,7 +629,18 @@ namespace Tutorial {
     if( surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT ) {
       return VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     }
-    return 0;
+    std::cout << "VK_IMAGE_USAGE_TRANSFER_DST image usage is not supported by the swap chain!" << std::endl
+      << "Supported swap chain's image usages include:" << std::endl
+      << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT              ? "    VK_IMAGE_USAGE_TRANSFER_SRC\n" : "")
+      << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT              ? "    VK_IMAGE_USAGE_TRANSFER_DST\n" : "")
+      << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT                   ? "    VK_IMAGE_USAGE_SAMPLED\n" : "")
+      << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_STORAGE_BIT                   ? "    VK_IMAGE_USAGE_STORAGE\n" : "")
+      << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT          ? "    VK_IMAGE_USAGE_COLOR_ATTACHMENT\n" : "")
+      << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT  ? "    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT\n" : "")
+      << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT      ? "    VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT\n" : "")
+      << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT          ? "    VK_IMAGE_USAGE_INPUT_ATTACHMENT" : "")
+      << std::endl;
+    return static_cast<VkImageUsageFlags>(-1);
   }
 
   VkSurfaceTransformFlagBitsKHR VulkanCommon::GetSwapChainTransform( VkSurfaceCapabilitiesKHR &surface_capabilities ) {
@@ -636,7 +648,7 @@ namespace Tutorial {
     // being other than default orientation)
     // If the specified transform is other than current transform, presentation engine will transform image
     // during presentation operation; this operation may hit performance on some platforms
-    // Here we don't want any transformations to occur so if no transform is supported use it
+    // Here we don't want any transformations to occur so if the identity transform is supported use it
     // otherwise just use the same transform as current transform
     if( surface_capabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ) {
       return VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
@@ -653,7 +665,13 @@ namespace Tutorial {
         return present_mode;
       }
     }
-    return VK_PRESENT_MODE_FIFO_KHR;
+    for( VkPresentModeKHR &present_mode : present_modes ) {
+      if( present_mode == VK_PRESENT_MODE_FIFO_KHR ) {
+        return present_mode;
+      }
+    }
+    std::cout << "FIFO present mode is not supported by the swap chain!" << std::endl;
+    return static_cast<VkPresentModeKHR>(-1);
   }
 
   VulkanCommon::~VulkanCommon() {

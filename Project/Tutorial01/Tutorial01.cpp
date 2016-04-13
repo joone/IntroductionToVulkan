@@ -63,7 +63,7 @@ namespace Tutorial {
 #endif
 
     if( VulkanLibrary == nullptr ) {
-      printf( "Could not load Vulkan library!\n" );
+      std::cout << "Could not load Vulkan library!" << std::endl;
       return false;
     }
     return true;
@@ -76,10 +76,10 @@ namespace Tutorial {
     #define LoadProcAddress dlsym
 #endif
 
-#define VK_EXPORTED_FUNCTION( fun )                                     \
-    if( !(fun = (PFN_##fun)LoadProcAddress( VulkanLibrary, #fun )) ) {  \
-      printf( "Could not load exported function: " #fun "!\n" );        \
-      return false;                                                     \
+#define VK_EXPORTED_FUNCTION( fun )                                                   \
+    if( !(fun = (PFN_##fun)LoadProcAddress( VulkanLibrary, #fun )) ) {                \
+      std::cout << "Could not load exported function: " << #fun << "!" << std::endl;  \
+      return false;                                                                   \
     }
 
 #include "ListOfFunctions.inl"
@@ -88,10 +88,10 @@ namespace Tutorial {
   }
 
   bool Tutorial01::LoadGlobalLevelEntryPoints() {
-#define VK_GLOBAL_LEVEL_FUNCTION( fun )                                 \
-    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( nullptr, #fun )) ) {  \
-      printf( "Could not load global level function: " #fun "!\n" );    \
-      return false;                                                     \
+#define VK_GLOBAL_LEVEL_FUNCTION( fun )                                                   \
+    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( nullptr, #fun )) ) {                    \
+      std::cout << "Could not load global level function: " << #fun << "!" << std::endl;  \
+      return false;                                                                       \
     }
 
 #include "ListOfFunctions.inl"
@@ -122,17 +122,17 @@ namespace Tutorial {
     };
 
     if( vkCreateInstance( &instance_create_info, nullptr, &Vulkan.Instance ) != VK_SUCCESS ) {
-      printf( "Could not create Vulkan instance!\n" );
+      std::cout << "Could not create Vulkan instance!" << std::endl;
       return false;
     }
     return true;
   }
 
   bool Tutorial01::LoadInstanceLevelEntryPoints() {
-#define VK_INSTANCE_LEVEL_FUNCTION( fun )                                       \
-    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( Vulkan.Instance, #fun )) ) {  \
-      printf( "Could not load instance level function: " #fun "\n" );           \
-      return false;                                                             \
+#define VK_INSTANCE_LEVEL_FUNCTION( fun )                                                   \
+    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( Vulkan.Instance, #fun )) ) {              \
+      std::cout << "Could not load instance level function: " << #fun << "!" << std::endl;  \
+      return false;                                                                         \
     }
 
 #include "ListOfFunctions.inl"
@@ -144,13 +144,13 @@ namespace Tutorial {
     uint32_t num_devices = 0;
     if( (vkEnumeratePhysicalDevices( Vulkan.Instance, &num_devices, nullptr ) != VK_SUCCESS) ||
         (num_devices == 0) ) {
-      printf( "Error occurred during physical devices enumeration!\n" );
+      std::cout << "Error occurred during physical devices enumeration!" << std::endl;
       return false;
     }
 
     std::vector<VkPhysicalDevice> physical_devices( num_devices );
     if( vkEnumeratePhysicalDevices( Vulkan.Instance, &num_devices, &physical_devices[0] ) != VK_SUCCESS ) {
-      printf( "Error occurred during physical devices enumeration!\n" );
+      std::cout << "Error occurred during physical devices enumeration!" << std::endl;
       return false;
     }
 
@@ -162,7 +162,7 @@ namespace Tutorial {
       }
     }
     if( selected_physical_device == VK_NULL_HANDLE ) {
-      printf( "Could not select physical device based on the chosen properties!\n" );
+      std::cout << "Could not select physical device based on the chosen properties!" << std::endl;
       return false;
     }
 
@@ -191,7 +191,7 @@ namespace Tutorial {
     };
 
     if( vkCreateDevice( selected_physical_device, &device_create_info, nullptr, &Vulkan.Device ) != VK_SUCCESS ) {
-      printf( "Could not create Vulkan device!\n" );
+      std::cout << "Could not create Vulkan device!" << std::endl;
       return false;
     }
 
@@ -212,14 +212,14 @@ namespace Tutorial {
 
     if( (major_version < 1) &&
         (device_properties.limits.maxImageDimension2D < 4096) ) {
-      printf( "Physical device %p doesn't support required parameters!\n", physical_device );
+      std::cout << "Physical device " << physical_device << " doesn't support required parameters!" << std::endl;
       return false;
     }
 
     uint32_t queue_families_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties( physical_device, &queue_families_count, nullptr );
     if( queue_families_count == 0 ) {
-      printf( "Physical device %p doesn't have any queue families!\n", physical_device );
+      std::cout << "Physical device " << physical_device << " doesn't have any queue families!" << std::endl;
       return false;
     }
 
@@ -233,15 +233,15 @@ namespace Tutorial {
       }
     }
 
-    printf( "Could not find queue family with required properties on physical device %p!\n", physical_device );
+    std::cout << "Could not find queue family with required properties on physical device " << physical_device << "!" << std::endl;
     return false;
   }
 
   bool Tutorial01::LoadDeviceLevelEntryPoints() {
-#define VK_DEVICE_LEVEL_FUNCTION( fun )                                     \
-    if( !(fun = (PFN_##fun)vkGetDeviceProcAddr( Vulkan.Device, #fun )) ) {  \
-      printf( "Could not load device level function: " #fun "!\n" );        \
-      return false;                                                         \
+#define VK_DEVICE_LEVEL_FUNCTION( fun )                                                   \
+    if( !(fun = (PFN_##fun)vkGetDeviceProcAddr( Vulkan.Device, #fun )) ) {                \
+      std::cout << "Could not load device level function: " << #fun << "!" << std::endl;  \
+      return false;                                                                       \
     }
 
 #include "ListOfFunctions.inl"
