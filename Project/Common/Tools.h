@@ -15,73 +15,77 @@
 #include <vector>
 #include "vulkan.h"
 
-namespace Tools {
+namespace ApiWithoutSecrets {
 
-  // ************************************************************ //
-  // AutoDeleter                                                  //
-  //                                                              //
-  // Auto-deleter helper template class responsible for calling   //
-  // provided function which deletes given object of type T       //
-  // ************************************************************ //
-  template<class T, class F>
-  class AutoDeleter {
-  public:
-    AutoDeleter() :
-      Object( VK_NULL_HANDLE ),
-      Deleter( nullptr ),
-      Device( VK_NULL_HANDLE ) {
-    }
+  namespace Tools {
 
-    AutoDeleter( T object, F deleter, VkDevice device ) :
-      Object( object ),
-      Deleter( deleter ),
-      Device( device ) {
-    }
-
-    AutoDeleter( AutoDeleter&& other ) {
-      *this = std::move( other );
-    }
-
-    ~AutoDeleter() {
-      if( (Object != VK_NULL_HANDLE) && (Deleter != nullptr) && (Device != VK_NULL_HANDLE) ) {
-        Deleter( Device, Object, nullptr );
+    // ************************************************************ //
+    // AutoDeleter                                                  //
+    //                                                              //
+    // Auto-deleter helper template class responsible for calling   //
+    // provided function which deletes given object of type T       //
+    // ************************************************************ //
+    template<class T, class F>
+    class AutoDeleter {
+    public:
+      AutoDeleter() :
+        Object( VK_NULL_HANDLE ),
+        Deleter( nullptr ),
+        Device( VK_NULL_HANDLE ) {
       }
-    }
 
-    AutoDeleter& operator=( AutoDeleter&& other ) {
-      if( this != &other ) {
-        Object = other.Object;
-        Deleter = other.Deleter;
-        Device = other.Device;
-        other.Object = VK_NULL_HANDLE;
+      AutoDeleter( T object, F deleter, VkDevice device ) :
+        Object( object ),
+        Deleter( deleter ),
+        Device( device ) {
       }
-      return *this;
-    }
 
-    T Get() {
-      return Object;
-    }
+      AutoDeleter( AutoDeleter&& other ) {
+        *this = std::move( other );
+      }
 
-    bool operator !() const {
-      return Object == VK_NULL_HANDLE;
-    }
+      ~AutoDeleter() {
+        if( (Object != VK_NULL_HANDLE) && (Deleter != nullptr) && (Device != VK_NULL_HANDLE) ) {
+          Deleter( Device, Object, nullptr );
+        }
+      }
 
-  private:
-    AutoDeleter( const AutoDeleter& );
-    AutoDeleter& operator=( const AutoDeleter& );
-    T         Object;
-    F         Deleter;
-    VkDevice  Device;
-  };
+      AutoDeleter& operator=(AutoDeleter&& other) {
+        if( this != &other ) {
+          Object = other.Object;
+          Deleter = other.Deleter;
+          Device = other.Device;
+          other.Object = VK_NULL_HANDLE;
+        }
+        return *this;
+      }
 
-  // ************************************************************ //
-  // GetBinaryFileContents                                        //
-  //                                                              //
-  // Function reading binary contents of a file                   //
-  // ************************************************************ //
-  std::vector<char> GetBinaryFileContents( std::string const &filename );
+      T Get() {
+        return Object;
+      }
 
-}
+      bool operator !() const {
+        return Object == VK_NULL_HANDLE;
+      }
+
+    private:
+      AutoDeleter( const AutoDeleter& );
+      AutoDeleter& operator=(const AutoDeleter&);
+      T         Object;
+      F         Deleter;
+      VkDevice  Device;
+    };
+
+    // ************************************************************ //
+    // GetBinaryFileContents                                        //
+    //                                                              //
+    // Function reading binary contents of a file                   //
+    // ************************************************************ //
+    std::vector<char> GetBinaryFileContents( std::string const &filename );
+
+  } // namespace Tools
+
+} // namespace ApiWithoutSecrets
 
 
 #endif // TOOLS_HEADER

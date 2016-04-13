@@ -11,8 +11,8 @@
 #include "Tutorial03.h"
 
 int main( int argc, char **argv ) {
-  OS::Window            window;
-  Tutorial::Tutorial03  tutorial03;
+  ApiWithoutSecrets::OS::Window window;
+  ApiWithoutSecrets::Tutorial03 tutorial03;
 
   // Window creation
   if( !window.Create( "03 - First Triangle" ) ) {

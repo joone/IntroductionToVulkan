@@ -11,8 +11,8 @@
 #include "Tutorial04.h"
 
 int main( int argc, char **argv ) {
-  OS::Window            window;
-  Tutorial::Tutorial04  tutorial04;
+  ApiWithoutSecrets::OS::Window window;
+  ApiWithoutSecrets::Tutorial04 tutorial04;
 
   // Window creation
   if( !window.Create( "04 - Vertex Attributes" ) ) {

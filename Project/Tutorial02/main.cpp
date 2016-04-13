@@ -11,8 +11,8 @@
 #include "Tutorial02.h"
 
 int main( int argc, char **argv ) {
-  OS::Window            window;
-  Tutorial::Tutorial02  tutorial02;
+  ApiWithoutSecrets::OS::Window window;
+  ApiWithoutSecrets::Tutorial02 tutorial02;
 
   // Window creation
   if( !window.Create( "02 - Swap chain" ) ) {

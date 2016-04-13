@@ -11,8 +11,8 @@
 #include "Tutorial01.h"
 
 int main( int argc, char **argv ) {
-  OS::Window            window;
-  Tutorial::Tutorial01  tutorial01;
+  ApiWithoutSecrets::OS::Window window;
+  ApiWithoutSecrets::Tutorial01 tutorial01;
 
   // Window creation
   if( !window.Create( "01 - The Beginning" ) ) {

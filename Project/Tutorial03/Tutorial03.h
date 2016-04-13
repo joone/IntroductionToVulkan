@@ -14,7 +14,7 @@
 #include "VulkanCommon.h"
 #include "Tools.h"
 
-namespace Tutorial {
+namespace ApiWithoutSecrets {
 
   // ************************************************************ //
   // FramebufferObject                                            //
@@ -77,6 +77,6 @@ namespace Tutorial {
     bool                                                              ChildOnWindowSizeChanged() override;
   };
 
-} // namespace Tutorial
+} // namespace ApiWithoutSecrets
 
 #endif // TUTORIAL_03_HEADER

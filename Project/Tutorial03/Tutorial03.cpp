@@ -11,7 +11,7 @@
 #include "Tutorial03.h"
 #include "VulkanFunctions.h"
 
-namespace Tutorial {
+namespace ApiWithoutSecrets {
 
   Tutorial03::Tutorial03() :
     Vulkan() {
@@ -593,4 +593,4 @@ namespace Tutorial {
     ChildClear();
   }
 
-} // namespace Tutorial
+} // namespace ApiWithoutSecrets

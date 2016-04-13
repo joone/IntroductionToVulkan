@@ -14,7 +14,7 @@
 #include "vulkan.h"
 #include "OperatingSystem.h"
 
-namespace Tutorial {
+namespace ApiWithoutSecrets {
 
   // ************************************************************ //
   // VulkanTutorial01Parameters                                   //
@@ -65,6 +65,6 @@ namespace Tutorial {
     bool GetDeviceQueue();
   };
 
-} // namespace Tutorial
+} // namespace ApiWithoutSecrets
 
 #endif // TUTORIAL_01_HEADER

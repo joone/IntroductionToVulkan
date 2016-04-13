@@ -15,7 +15,7 @@
 #include "vulkan.h"
 #include "OperatingSystem.h"
 
-namespace Tutorial {
+namespace ApiWithoutSecrets {
 
   // ************************************************************ //
   // QueueParameters                                              //
@@ -129,6 +129,6 @@ namespace Tutorial {
     VkPresentModeKHR              GetSwapChainPresentMode( std::vector<VkPresentModeKHR> &present_modes );
   };
 
-} // namespace Tutorial
+} // namespace ApiWithoutSecrets
 
 #endif // VULKAN_COMMON_HEADER

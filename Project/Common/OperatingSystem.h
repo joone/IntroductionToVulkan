@@ -30,90 +30,94 @@
 #include <cstring>
 #include <iostream>
 
-namespace OS {
+namespace ApiWithoutSecrets {
 
-  // ************************************************************ //
-  // LibraryHandle                                                //
-  //                                                              //
-  // Dynamic Library OS dependent type                            //
-  // ************************************************************ //
-  // 
+  namespace OS {
+
+    // ************************************************************ //
+    // LibraryHandle                                                //
+    //                                                              //
+    // Dynamic Library OS dependent type                            //
+    // ************************************************************ //
+    // 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-  typedef HMODULE LibraryHandle;
+    typedef HMODULE LibraryHandle;
 
 #elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-  typedef void* LibraryHandle;
+    typedef void* LibraryHandle;
 
 #endif
 
-  // ************************************************************ //
-  // OnWindowSizeChanged                                          //
-  //                                                              //
-  // Base class for handling window size changes                  //
-  // ************************************************************ //
-  class TutorialBase {
-  public:
-    virtual bool OnWindowSizeChanged() = 0;
-    virtual bool Draw() = 0;
+    // ************************************************************ //
+    // OnWindowSizeChanged                                          //
+    //                                                              //
+    // Base class for handling window size changes                  //
+    // ************************************************************ //
+    class TutorialBase {
+    public:
+      virtual bool OnWindowSizeChanged() = 0;
+      virtual bool Draw() = 0;
 
-    virtual ~TutorialBase( ) {
-    }
-  };
+      virtual ~TutorialBase() {
+      }
+    };
 
-  // ************************************************************ //
-  // WindowParameters                                             //
-  //                                                              //
-  // OS dependent window parameters                               //
-  // ************************************************************ //
-  struct WindowParameters {
+    // ************************************************************ //
+    // WindowParameters                                             //
+    //                                                              //
+    // OS dependent window parameters                               //
+    // ************************************************************ //
+    struct WindowParameters {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    HINSTANCE           Instance;
-    HWND                Handle;
+      HINSTANCE           Instance;
+      HWND                Handle;
 
-    WindowParameters() :
-      Instance(),
-      Handle() {
-    }
+      WindowParameters() :
+        Instance(),
+        Handle() {
+      }
 
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-    xcb_connection_t   *Connection;
-    xcb_window_t        Handle;
+      xcb_connection_t   *Connection;
+      xcb_window_t        Handle;
 
-    WindowParameters() :
-      Connection(),
-      Handle() {
-    }
+      WindowParameters() :
+        Connection(),
+        Handle() {
+      }
 
 #elif defined(VK_USE_PLATFORM_XLIB_KHR)
-    Display            *DisplayPtr;
-    Window              Handle;
+      Display            *DisplayPtr;
+      Window              Handle;
 
-    WindowParameters() :
-      DisplayPtr(),
-      Handle() {
-    }
+      WindowParameters() :
+        DisplayPtr(),
+        Handle() {
+      }
 
 #endif
-  };
+    };
 
-  // ************************************************************ //
-  // Window                                                       //
-  //                                                              //
-  // OS dependent window creation and destruction class           //
-  // ************************************************************ //
-  class Window {
-  public:
-    Window();
-    ~Window();
+    // ************************************************************ //
+    // Window                                                       //
+    //                                                              //
+    // OS dependent window creation and destruction class           //
+    // ************************************************************ //
+    class Window {
+    public:
+      Window();
+      ~Window();
 
-    bool              Create( const char *title );
-    bool              RenderingLoop( TutorialBase &tutorial ) const;
-    WindowParameters  GetParameters() const;
+      bool              Create( const char *title );
+      bool              RenderingLoop( TutorialBase &tutorial ) const;
+      WindowParameters  GetParameters() const;
 
-  private:
-    WindowParameters  Parameters;
-  };
+    private:
+      WindowParameters  Parameters;
+    };
 
-}
+  } // namespace OS
+
+} // namespace ApiWithoutSecrets
 
 #endif // OPERATING_SYSTEM_HEADER

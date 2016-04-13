@@ -12,7 +12,7 @@
 #include "Tutorial01.h"
 #include "VulkanFunctions.h"
 
-namespace Tutorial {
+namespace ApiWithoutSecrets {
 
   Tutorial01::Tutorial01() :
     VulkanLibrary(),

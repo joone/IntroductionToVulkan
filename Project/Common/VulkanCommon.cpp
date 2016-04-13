@@ -11,7 +11,7 @@
 #include "VulkanCommon.h"
 #include "VulkanFunctions.h"
 
-namespace Tutorial {
+namespace ApiWithoutSecrets {
 
   VulkanCommon::VulkanCommon() :
     VulkanLibrary(),
@@ -707,4 +707,4 @@ namespace Tutorial {
     }
   }
 
-} // namespace Tutorial
+} // namespace ApiWithoutSecrets

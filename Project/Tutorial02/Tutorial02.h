@@ -15,7 +15,7 @@
 #include "vulkan.h"
 #include "OperatingSystem.h"
 
-namespace Tutorial {
+namespace ApiWithoutSecrets {
 
   // ************************************************************ //
   // VulkanTutorial02Parameters                                   //
@@ -96,6 +96,6 @@ namespace Tutorial {
     VkPresentModeKHR              GetSwapChainPresentMode( std::vector<VkPresentModeKHR> &present_modes );
   };
 
-} // namespace Tutorial
+} // namespace ApiWithoutSecrets
 
 #endif // TUTORIAL_02_HEADER
