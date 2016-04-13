@@ -43,10 +43,15 @@ if( CMAKE_BUILD_TYPE STREQUAL "debug" )
 	add_definitions(-D_DEBUG)
 endif()
 
-macro( add_executable _name )
-	_add_executable( ${ARGV} )
-	target_compile_definitions( ${_name} PRIVATE USE_SWAPCHAIN_EXTENSIONS )
-	target_link_libraries( ${_name} ${PLATFORM_LIBRARY} )
+macro( add_executable _number _name )
+	set( TARGET_NAME "${_number}-${_name}" )
+	_add_executable( ${TARGET_NAME} ${ARGN} )
+	target_compile_definitions( ${TARGET_NAME} PRIVATE USE_SWAPCHAIN_EXTENSIONS )
+	target_link_libraries( ${TARGET_NAME} ${PLATFORM_LIBRARY} )
+	
+	if( EXISTS "${CMAKE_SOURCE_DIR}/Tutorial${_number}/Data${_number}/" )
+		file( COPY "${CMAKE_SOURCE_DIR}/Tutorial${_number}/Data${_number}/" DESTINATION "${CMAKE_SOURCE_DIR}/build/Data${_number}" )
+	endif()
 endmacro()
 
 add_definitions( -DVK_NO_PROTOTYPES )
@@ -106,19 +111,19 @@ _add_executable( "01-The_Beginning"
 	Tutorial01/Tutorial01.cpp )
 	target_link_libraries( "01-The_Beginning" ${PLATFORM_LIBRARY} )
 
-add_executable( "02-Swapchain"
+add_executable( "02" "Swapchain"
 	${ALL_BASIC_SHARED_FILES}
 	Tutorial02/Tutorial02.h
 	Tutorial02/main.cpp
 	Tutorial02/Tutorial02.cpp )
 
-add_executable( "03-First_Triangle"
+add_executable( "03" "First_Triangle"
 	${ALL_BASIC_AND_ADVANCED_SHARED_FILES}
 	Tutorial03/Tutorial03.h
 	Tutorial03/main.cpp
 	Tutorial03/Tutorial03.cpp )
 
-add_executable( "04-Vertex_Attributes"
+add_executable( "04" "Vertex_Attributes"
 	${ALL_BASIC_AND_ADVANCED_SHARED_FILES}
 	Tutorial04/Tutorial04.h
 	Tutorial04/main.cpp
