@@ -52,9 +52,6 @@ namespace ApiWithoutSecrets {
     if( !CreateSwapChain() ) {
       return false;
     }
-    if( !CreateSemaphores() ) {
-      return false;
-    }
     return true;
   }
 
@@ -85,14 +82,6 @@ namespace ApiWithoutSecrets {
 
   const SwapChainParameters VulkanCommon::GetSwapChain() const {
     return Vulkan.SwapChain;
-  }
-
-  const VkSemaphore VulkanCommon::GetImageAvailableSemaphore() const {
-    return Vulkan.ImageAvailableSemaphore;
-  }
-
-  const VkSemaphore VulkanCommon::GetRenderingFinishedSemaphore() const {
-    return Vulkan.RenderingFinishedSemaphore;
   }
 
   bool VulkanCommon::LoadVulkanLibrary() {
@@ -449,6 +438,14 @@ namespace ApiWithoutSecrets {
       vkDeviceWaitIdle( Vulkan.Device );
     }
 
+    for( size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i ) {
+      if( Vulkan.SwapChain.Images[i].ImageView != VK_NULL_HANDLE ) {
+        vkDestroyImageView( GetDevice(), Vulkan.SwapChain.Images[i].ImageView, nullptr );
+        Vulkan.SwapChain.Images[i].ImageView = VK_NULL_HANDLE;
+      }
+    }
+    Vulkan.SwapChain.Images.clear();
+
     VkSurfaceCapabilitiesKHR surface_capabilities;
     if( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( Vulkan.PhysicalDevice, Vulkan.PresentationSurface, &surface_capabilities ) != VK_SUCCESS ) {
       std::cout << "Could not check presentation surface capabilities!" << std::endl;
@@ -534,25 +531,49 @@ namespace ApiWithoutSecrets {
       return false;
     }
     Vulkan.SwapChain.Images.resize( image_count );
-    if( vkGetSwapchainImagesKHR( Vulkan.Device, Vulkan.SwapChain.Handle, &image_count, &Vulkan.SwapChain.Images[0] ) != VK_SUCCESS ) {
+
+    std::vector<VkImage> images( image_count );
+    if( vkGetSwapchainImagesKHR( Vulkan.Device, Vulkan.SwapChain.Handle, &image_count, &images[0] ) != VK_SUCCESS ) {
       std::cout << "Could not get swap chain images!" << std::endl;
       return false;
     }
 
-    return true;
+    for( size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i ) {
+      Vulkan.SwapChain.Images[i].Handle = images[i];
+    }
+    Vulkan.SwapChain.Extent = desired_extent;
+
+    return CreateSwapChainImageViews();
   }
 
-  bool VulkanCommon::CreateSemaphores( ) {
-    VkSemaphoreCreateInfo semaphore_create_info = {
-      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,      // VkStructureType          sType
-      nullptr,                                      // const void*              pNext
-      0                                             // VkSemaphoreCreateFlags   flags
-    };
+  bool VulkanCommon::CreateSwapChainImageViews() {
+    for( size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i ) {
+      VkImageViewCreateInfo image_view_create_info = {
+        VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,   // VkStructureType                sType
+        nullptr,                                    // const void                    *pNext
+        0,                                          // VkImageViewCreateFlags         flags
+        Vulkan.SwapChain.Images[i].Handle,          // VkImage                        image
+        VK_IMAGE_VIEW_TYPE_2D,                      // VkImageViewType                viewType
+        GetSwapChain().Format,                      // VkFormat                       format
+        {                                           // VkComponentMapping             components
+          VK_COMPONENT_SWIZZLE_IDENTITY,              // VkComponentSwizzle             r
+          VK_COMPONENT_SWIZZLE_IDENTITY,              // VkComponentSwizzle             g
+          VK_COMPONENT_SWIZZLE_IDENTITY,              // VkComponentSwizzle             b
+          VK_COMPONENT_SWIZZLE_IDENTITY               // VkComponentSwizzle             a
+        },
+        {                                           // VkImageSubresourceRange        subresourceRange
+          VK_IMAGE_ASPECT_COLOR_BIT,                  // VkImageAspectFlags             aspectMask
+          0,                                          // uint32_t                       baseMipLevel
+          1,                                          // uint32_t                       levelCount
+          0,                                          // uint32_t                       baseArrayLayer
+          1                                           // uint32_t                       layerCount
+        }
+      };
 
-    if( (vkCreateSemaphore( Vulkan.Device, &semaphore_create_info, nullptr, &Vulkan.ImageAvailableSemaphore ) != VK_SUCCESS) ||
-        (vkCreateSemaphore( Vulkan.Device, &semaphore_create_info, nullptr, &Vulkan.RenderingFinishedSemaphore ) != VK_SUCCESS) ) {
-      std::cout << "Could not create semaphores!" << std::endl;
-      return false;
+      if( vkCreateImageView( GetDevice(), &image_view_create_info, nullptr, &Vulkan.SwapChain.Images[i].ImageView ) != VK_SUCCESS ) {
+        std::cout << "Could not create image view for framebuffer!" << std::endl;
+        return false;
+      }
     }
 
     return true;
@@ -626,10 +647,10 @@ namespace ApiWithoutSecrets {
   VkImageUsageFlags VulkanCommon::GetSwapChainUsageFlags( VkSurfaceCapabilitiesKHR &surface_capabilities ) {
     // Color attachment flag must always be supported
     // We can define other usage flags but we always need to check if they are supported
-    if( surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT ) {
-      return VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    if( surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT ) {
+      return VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     }
-    std::cout << "VK_IMAGE_USAGE_TRANSFER_DST image usage is not supported by the swap chain!" << std::endl
+    std::cout << "VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT image usage is not supported by the swap chain!" << std::endl
       << "Supported swap chain's image usages include:" << std::endl
       << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT              ? "    VK_IMAGE_USAGE_TRANSFER_SRC\n" : "")
       << (surface_capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT              ? "    VK_IMAGE_USAGE_TRANSFER_DST\n" : "")
@@ -678,12 +699,12 @@ namespace ApiWithoutSecrets {
     if( Vulkan.Device != VK_NULL_HANDLE ) {
       vkDeviceWaitIdle( Vulkan.Device );
 
-      if( Vulkan.ImageAvailableSemaphore != VK_NULL_HANDLE ) {
-        vkDestroySemaphore( Vulkan.Device, Vulkan.ImageAvailableSemaphore, nullptr );
+      for( size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i ) {
+        if( Vulkan.SwapChain.Images[i].ImageView != VK_NULL_HANDLE ) {
+          vkDestroyImageView( GetDevice(), Vulkan.SwapChain.Images[i].ImageView, nullptr );
+        }
       }
-      if( Vulkan.RenderingFinishedSemaphore != VK_NULL_HANDLE ) {
-        vkDestroySemaphore( Vulkan.Device, Vulkan.RenderingFinishedSemaphore, nullptr );
-      }
+
       if( Vulkan.SwapChain.Handle != VK_NULL_HANDLE ) {
         vkDestroySwapchainKHR( Vulkan.Device, Vulkan.SwapChain.Handle, nullptr );
       }

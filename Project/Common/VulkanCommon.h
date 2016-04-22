@@ -33,6 +33,21 @@ namespace ApiWithoutSecrets {
   };
 
   // ************************************************************ //
+  // ImageParameters                                              //
+  //                                                              //
+  // Vulkan Image's parameters container class                    //
+  // ************************************************************ //
+  struct ImageParameters {
+    VkImage                       Handle;
+    VkImageView                   ImageView;
+
+    ImageParameters() :
+      Handle( VK_NULL_HANDLE ),
+      ImageView( VK_NULL_HANDLE ) {
+    }
+  };
+
+  // ************************************************************ //
   // SwapChainParameters                                          //
   //                                                              //
   // Vulkan SwapChain's parameters container class                //
@@ -40,12 +55,14 @@ namespace ApiWithoutSecrets {
   struct SwapChainParameters {
     VkSwapchainKHR                Handle;
     VkFormat                      Format;
-    std::vector<VkImage>          Images;
+    std::vector<ImageParameters>  Images;
+    VkExtent2D                    Extent;
 
     SwapChainParameters() :
       Handle( VK_NULL_HANDLE ),
       Format( VK_FORMAT_UNDEFINED ),
-      Images() {
+      Images(),
+      Extent() {
     }
   };
 
@@ -62,8 +79,6 @@ namespace ApiWithoutSecrets {
     QueueParameters               PresentQueue;
     VkSurfaceKHR                  PresentationSurface;
     SwapChainParameters           SwapChain;
-    VkSemaphore                   ImageAvailableSemaphore;
-    VkSemaphore                   RenderingFinishedSemaphore;
 
     VulkanCommonParameters() :
       Instance( VK_NULL_HANDLE ),
@@ -97,8 +112,6 @@ namespace ApiWithoutSecrets {
     const QueueParameters         GetPresentQueue() const;
 
     const SwapChainParameters     GetSwapChain() const;
-    const VkSemaphore             GetImageAvailableSemaphore() const;
-    const VkSemaphore             GetRenderingFinishedSemaphore() const;
 
   private:
     OS::LibraryHandle       VulkanLibrary;
@@ -116,7 +129,7 @@ namespace ApiWithoutSecrets {
     bool                          LoadDeviceLevelEntryPoints();
     bool                          GetDeviceQueue();
     bool                          CreateSwapChain();
-    bool                          CreateSemaphores();
+    bool                          CreateSwapChainImageViews();
     virtual bool                  ChildOnWindowSizeChanged() = 0;
     virtual void                  ChildClear() = 0;
 
