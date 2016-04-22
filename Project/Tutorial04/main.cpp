@@ -28,25 +28,13 @@ int main( int argc, char **argv ) {
   if( !tutorial04.CreateRenderPass() ) {
     return -1;
   }
-  if( !tutorial04.CreateImage() ) {
-    return -1;
-  }
-  if( !tutorial04.CreateFramebuffer() ) {
-    return -1;
-  }
   if( !tutorial04.CreatePipeline() ) {
     return -1;
   }
-  if( !tutorial04.CreateCommandBuffers( ) ) {
+  if( !tutorial04.CreateRenderingResources() ) {
     return -1;
   }
   if( !tutorial04.CreateVertexBuffer() ) {
-    return -1;
-  }
-  if( !tutorial04.CreateFence() ) {
-    return -1;
-  }
-  if( !tutorial04.RecordRenderingCommandBuffer() ) {
     return -1;
   }
 

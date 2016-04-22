@@ -17,25 +17,6 @@
 namespace ApiWithoutSecrets {
 
   // ************************************************************ //
-  // ImageParameters                                              //
-  //                                                              //
-  // Vulkan Image's parameters container class                    //
-  // ************************************************************ //
-  struct ImageParameters {
-    VkFormat                        Format;
-    VkImage                         Handle;
-    VkDeviceMemory                  Memory;
-    VkImageView                     View;
-
-    ImageParameters() :
-      Format( VK_FORMAT_R8G8B8A8_UNORM ),
-      Handle( VK_NULL_HANDLE ),
-      Memory( VK_NULL_HANDLE ),
-      View( VK_NULL_HANDLE ) {
-    }
-  };
-
-  // ************************************************************ //
   // BufferParameters                                             //
   //                                                              //
   // Vulkan Buffer's parameters container class                   //
@@ -63,30 +44,44 @@ namespace ApiWithoutSecrets {
   };
 
   // ************************************************************ //
+  // RenderingResourcesData                                       //
+  //                                                              //
+  // Struct containing data used during rendering process         //
+  // ************************************************************ //
+  struct RenderingResourcesData {
+    VkCommandBuffer                 CommandBuffer;
+    VkSemaphore                     ImageAvailableSemaphore;
+    VkSemaphore                     FinishedRenderingSemaphore;
+    VkFence                         Fence;
+
+    RenderingResourcesData() :
+      CommandBuffer( VK_NULL_HANDLE ),
+      ImageAvailableSemaphore( VK_NULL_HANDLE ),
+      FinishedRenderingSemaphore( VK_NULL_HANDLE ),
+      Fence( VK_NULL_HANDLE ) {
+    }
+  };
+
+  // ************************************************************ //
   // VulkanTutorial04Parameters                                   //
   //                                                              //
   // Vulkan specific parameters                                   //
   // ************************************************************ //
   struct VulkanTutorial04Parameters {
-    VkRenderPass                    RenderPass;
-    ImageParameters                 Image;
-    VkFramebuffer                   Framebuffer;
-    VkPipeline                      GraphicsPipeline;
-    BufferParameters                VertexBuffer;
-    VkFence                         Fence;
-    VkCommandPool                   GraphicsCommandPool;
-    VkCommandBuffer                 RenderingCommandBuffer;
-    VkCommandBuffer                 CopyingCommandBuffer;
+    VkRenderPass                          RenderPass;
+    VkPipeline                            GraphicsPipeline;
+    BufferParameters                      VertexBuffer;
+    VkCommandPool                         CommandPool;
+    std::vector<RenderingResourcesData>   RenderingResources;
+
+    static const size_t                   ResourcesCount = 3;
 
     VulkanTutorial04Parameters() :
       RenderPass( VK_NULL_HANDLE ),
-      Image(),
       GraphicsPipeline( VK_NULL_HANDLE ),
       VertexBuffer(),
-      Fence( VK_NULL_HANDLE ),
-      GraphicsCommandPool( VK_NULL_HANDLE ),
-      RenderingCommandBuffer( VK_NULL_HANDLE ),
-      CopyingCommandBuffer( VK_NULL_HANDLE ) {
+      CommandPool( VK_NULL_HANDLE ),
+      RenderingResources( ResourcesCount ) {
     }
   };
 
@@ -101,27 +96,26 @@ namespace ApiWithoutSecrets {
     ~Tutorial04();
 
     bool    CreateRenderPass();
-    bool    CreateImage();
-    bool    CreateFramebuffer();
     bool    CreatePipeline();
+    bool    CreateRenderingResources();
     bool    CreateVertexBuffer();
-    bool    CreateFence();
-    bool    CreateCommandBuffers();
-    bool    RecordRenderingCommandBuffer();
 
     bool    Draw() override;
 
   private:
     VulkanTutorial04Parameters  Vulkan;
 
-    bool                                                              AllocateImageMemory( VkImage image, VkDeviceMemory *memory );
-    bool                                                              AllocateBufferMemory( VkBuffer buffer, VkDeviceMemory *memory );
-    bool                                                              CommitMemoryChanges( VkBuffer buffer, VkDeviceSize size );
     Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>     CreateShaderModule( const char* filename );
     Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> CreatePipelineLayout();
     bool                                                              CreateCommandPool( uint32_t queue_family_index, VkCommandPool *pool );
     bool                                                              AllocateCommandBuffers( VkCommandPool pool, uint32_t count, VkCommandBuffer *command_buffers );
-    bool                                                              RecordCopyingCommandBuffer( VkImage swap_chain_image );
+    bool                                                              CreateCommandBuffers();
+    bool                                                              CreateSemaphores();
+    bool                                                              CreateFences();
+    bool                                                              AllocateBufferMemory( VkBuffer buffer, VkDeviceMemory *memory );
+    bool                                                              CommitMemoryChanges( VkBuffer buffer, VkDeviceSize size );
+    bool                                                              RecordCommandBuffer( VkCommandBuffer command_buffer, VkImage image, VkImageView image_view );
+    Tools::AutoDeleter<VkFramebuffer, PFN_vkDestroyFramebuffer>       CreateFramebuffer( VkImageView image_view );
 
     void                                                              ChildClear() override;
     bool                                                              ChildOnWindowSizeChanged() override;
