@@ -17,33 +17,27 @@
 namespace ApiWithoutSecrets {
 
   // ************************************************************ //
-  // FramebufferObject                                            //
-  //                                                              //
-  // Vulkan Framebuffer's parameters container class              //
-  // ************************************************************ //
-  struct FramebufferParameters {
-    VkImageView     ImageView;
-    VkFramebuffer   Handle;
-  };
-
-  // ************************************************************ //
   // VulkanTutorial03Parameters                                   //
   //                                                              //
   // Vulkan specific parameters                                   //
   // ************************************************************ //
   struct VulkanTutorial03Parameters {
     VkRenderPass                        RenderPass;
-    std::vector<FramebufferParameters>  FramebufferObjects;
+    std::vector<VkFramebuffer>          Framebuffers;
+    VkPipeline                          GraphicsPipeline;
+    VkSemaphore                         ImageAvailableSemaphore;
+    VkSemaphore                         RenderingFinishedSemaphore;
     VkCommandPool                       GraphicsCommandPool;
     std::vector<VkCommandBuffer>        GraphicsCommandBuffers;
-    VkPipeline                          GraphicsPipeline;
 
     VulkanTutorial03Parameters() :
       RenderPass( VK_NULL_HANDLE ),
-      FramebufferObjects(),
+      Framebuffers(),
       GraphicsCommandPool( VK_NULL_HANDLE ),
       GraphicsCommandBuffers(),
-      GraphicsPipeline( VK_NULL_HANDLE ) {
+      GraphicsPipeline( VK_NULL_HANDLE ),
+      ImageAvailableSemaphore( VK_NULL_HANDLE ),
+      RenderingFinishedSemaphore( VK_NULL_HANDLE ) {
     }
   };
 
@@ -60,6 +54,7 @@ namespace ApiWithoutSecrets {
     bool    CreateRenderPass();
     bool    CreateFramebuffers();
     bool    CreatePipeline();
+    bool    CreateSemaphores();
     bool    CreateCommandBuffers();
     bool    RecordCommandBuffers();
 

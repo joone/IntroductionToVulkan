@@ -75,50 +75,23 @@ namespace ApiWithoutSecrets {
   }
 
   bool Tutorial03::CreateFramebuffers() {
-    const std::vector<VkImage> &swap_chain_images = GetSwapChain().Images;
-    Vulkan.FramebufferObjects.resize( swap_chain_images.size() );
+    const std::vector<ImageParameters> &swap_chain_images = GetSwapChain().Images;
+    Vulkan.Framebuffers.resize( swap_chain_images.size() );
 
     for( size_t i = 0; i < swap_chain_images.size(); ++i ) {
-      VkImageViewCreateInfo image_view_create_info = {
-        VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,   // VkStructureType                sType
-        nullptr,                                    // const void                    *pNext
-        0,                                          // VkImageViewCreateFlags         flags
-        swap_chain_images[i],                       // VkImage                        image
-        VK_IMAGE_VIEW_TYPE_2D,                      // VkImageViewType                viewType
-        GetSwapChain().Format,                      // VkFormat                       format
-        {                                           // VkComponentMapping             components
-          VK_COMPONENT_SWIZZLE_IDENTITY,              // VkComponentSwizzle             r
-          VK_COMPONENT_SWIZZLE_IDENTITY,              // VkComponentSwizzle             g
-          VK_COMPONENT_SWIZZLE_IDENTITY,              // VkComponentSwizzle             b
-          VK_COMPONENT_SWIZZLE_IDENTITY               // VkComponentSwizzle             a
-        },
-        {                                           // VkImageSubresourceRange        subresourceRange
-          VK_IMAGE_ASPECT_COLOR_BIT,                  // VkImageAspectFlags             aspectMask
-          0,                                          // uint32_t                       baseMipLevel
-          1,                                          // uint32_t                       levelCount
-          0,                                          // uint32_t                       baseArrayLayer
-          1                                           // uint32_t                       layerCount
-        }
-      };
-
-      if( vkCreateImageView( GetDevice(), &image_view_create_info, nullptr, &Vulkan.FramebufferObjects[i].ImageView ) != VK_SUCCESS ) {
-        std::cout << "Could not create image view for framebuffer!" << std::endl;
-        return false;
-      }
-
       VkFramebufferCreateInfo framebuffer_create_info = {
         VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,  // VkStructureType                sType
         nullptr,                                    // const void                    *pNext
         0,                                          // VkFramebufferCreateFlags       flags
         Vulkan.RenderPass,                          // VkRenderPass                   renderPass
         1,                                          // uint32_t                       attachmentCount
-        &Vulkan.FramebufferObjects[i].ImageView,    // const VkImageView             *pAttachments
+        &swap_chain_images[i].ImageView,            // const VkImageView             *pAttachments
         300,                                        // uint32_t                       width
         300,                                        // uint32_t                       height
         1                                           // uint32_t                       layers
       };
 
-      if( vkCreateFramebuffer( GetDevice(), &framebuffer_create_info, nullptr, &Vulkan.FramebufferObjects[i].Handle ) != VK_SUCCESS ) {
+      if( vkCreateFramebuffer( GetDevice(), &framebuffer_create_info, nullptr, &Vulkan.Framebuffers[i] ) != VK_SUCCESS ) {
         std::cout << "Could not create a framebuffer!" << std::endl;
         return false;
       }
@@ -333,6 +306,22 @@ namespace ApiWithoutSecrets {
     return true;
   }
 
+  bool Tutorial03::CreateSemaphores() {
+    VkSemaphoreCreateInfo semaphore_create_info = {
+      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,      // VkStructureType          sType
+      nullptr,                                      // const void*              pNext
+      0                                             // VkSemaphoreCreateFlags   flags
+    };
+
+    if( (vkCreateSemaphore( GetDevice(), &semaphore_create_info, nullptr, &Vulkan.ImageAvailableSemaphore ) != VK_SUCCESS) ||
+        (vkCreateSemaphore( GetDevice(), &semaphore_create_info, nullptr, &Vulkan.RenderingFinishedSemaphore ) != VK_SUCCESS) ) {
+      std::cout << "Could not create semaphores!" << std::endl;
+      return false;
+    }
+
+    return true;
+  }
+
   bool Tutorial03::CreateCommandBuffers() {
     if( !CreateCommandPool( GetGraphicsQueue().FamilyIndex, &Vulkan.GraphicsCommandPool ) ) {
       std::cout << "Could not create command pool!" << std::endl;
@@ -398,7 +387,7 @@ namespace ApiWithoutSecrets {
       { 1.0f, 0.8f, 0.4f, 0.0f },                     // VkClearColorValue              color
     };
 
-    const std::vector<VkImage>& swap_chain_images = GetSwapChain().Images;
+    const std::vector<ImageParameters>& swap_chain_images = GetSwapChain().Images;
 
     for( size_t i = 0; i < Vulkan.GraphicsCommandBuffers.size(); ++i ) {
       vkBeginCommandBuffer( Vulkan.GraphicsCommandBuffers[i], &graphics_commandd_buffer_begin_info );
@@ -413,7 +402,7 @@ namespace ApiWithoutSecrets {
           VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,            // VkImageLayout                  newLayout
           GetPresentQueue().FamilyIndex,              // uint32_t                       srcQueueFamilyIndex
           GetGraphicsQueue().FamilyIndex,             // uint32_t                       dstQueueFamilyIndex
-          swap_chain_images[i],                       // VkImage                        image
+          swap_chain_images[i].Handle,                // VkImage                        image
           image_subresource_range                     // VkImageSubresourceRange        subresourceRange
         };
         vkCmdPipelineBarrier( Vulkan.GraphicsCommandBuffers[i], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_present_to_draw );
@@ -423,7 +412,7 @@ namespace ApiWithoutSecrets {
         VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,     // VkStructureType                sType
         nullptr,                                      // const void                    *pNext
         Vulkan.RenderPass,                            // VkRenderPass                   renderPass
-        Vulkan.FramebufferObjects[i].Handle,          // VkFramebuffer                  framebuffer
+        Vulkan.Framebuffers[i],                       // VkFramebuffer                  framebuffer
         {                                             // VkRect2D                       renderArea
           {                                           // VkOffset2D                     offset
             0,                                          // int32_t                        x
@@ -455,8 +444,8 @@ namespace ApiWithoutSecrets {
           VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,              // VkImageLayout                oldLayout
           VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,              // VkImageLayout                newLayout
           GetGraphicsQueue().FamilyIndex,               // uint32_t                     srcQueueFamilyIndex
-          GetPresentQueue( ).FamilyIndex,               // uint32_t                     dstQueueFamilyIndex
-          swap_chain_images[i],                         // VkImage                      image
+          GetPresentQueue().FamilyIndex,                // uint32_t                     dstQueueFamilyIndex
+          swap_chain_images[i].Handle,                  // VkImage                      image
           image_subresource_range                       // VkImageSubresourceRange      subresourceRange
         };
         vkCmdPipelineBarrier( Vulkan.GraphicsCommandBuffers[i], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_draw_to_present );
@@ -490,12 +479,10 @@ namespace ApiWithoutSecrets {
   }
 
   bool Tutorial03::Draw() {
-    VkSemaphore image_available_semaphore = GetImageAvailableSemaphore();
-    VkSemaphore rendering_finished_semaphore = GetRenderingFinishedSemaphore();
     VkSwapchainKHR swap_chain = GetSwapChain().Handle;
     uint32_t image_index;
 
-    VkResult result = vkAcquireNextImageKHR( GetDevice(), swap_chain, UINT64_MAX, image_available_semaphore, VK_NULL_HANDLE, &image_index );
+    VkResult result = vkAcquireNextImageKHR( GetDevice(), swap_chain, UINT64_MAX, Vulkan.ImageAvailableSemaphore, VK_NULL_HANDLE, &image_index );
     switch( result ) {
       case VK_SUCCESS:
       case VK_SUBOPTIMAL_KHR:
@@ -512,12 +499,12 @@ namespace ApiWithoutSecrets {
       VK_STRUCTURE_TYPE_SUBMIT_INFO,                // VkStructureType              sType
       nullptr,                                      // const void                  *pNext
       1,                                            // uint32_t                     waitSemaphoreCount
-      &image_available_semaphore,                   // const VkSemaphore           *pWaitSemaphores
+      &Vulkan.ImageAvailableSemaphore,              // const VkSemaphore           *pWaitSemaphores
       &wait_dst_stage_mask,                         // const VkPipelineStageFlags  *pWaitDstStageMask;
       1,                                            // uint32_t                     commandBufferCount
       &Vulkan.GraphicsCommandBuffers[image_index],  // const VkCommandBuffer       *pCommandBuffers
       1,                                            // uint32_t                     signalSemaphoreCount
-      &rendering_finished_semaphore                 // const VkSemaphore           *pSignalSemaphores
+      &Vulkan.RenderingFinishedSemaphore            // const VkSemaphore           *pSignalSemaphores
     };
 
     if( vkQueueSubmit( GetGraphicsQueue().Handle, 1, &submit_info, VK_NULL_HANDLE ) != VK_SUCCESS ) {
@@ -528,7 +515,7 @@ namespace ApiWithoutSecrets {
       VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,           // VkStructureType              sType
       nullptr,                                      // const void                  *pNext
       1,                                            // uint32_t                     waitSemaphoreCount
-      &rendering_finished_semaphore,                // const VkSemaphore           *pWaitSemaphores
+      &Vulkan.RenderingFinishedSemaphore,           // const VkSemaphore           *pWaitSemaphores
       1,                                            // uint32_t                     swapchainCount
       &swap_chain,                                  // const VkSwapchainKHR        *pSwapchains
       &image_index,                                 // const uint32_t              *pImageIndices
@@ -574,23 +561,30 @@ namespace ApiWithoutSecrets {
         Vulkan.RenderPass = VK_NULL_HANDLE;
       }
 
-      for( size_t i = 0; i < Vulkan.FramebufferObjects.size(); ++i ) {
-        if( Vulkan.FramebufferObjects[i].Handle != VK_NULL_HANDLE ) {
-          vkDestroyFramebuffer( GetDevice(), Vulkan.FramebufferObjects[i].Handle, nullptr );
-          Vulkan.FramebufferObjects[i].Handle = VK_NULL_HANDLE;
-        }
-
-        if( Vulkan.FramebufferObjects[i].ImageView != VK_NULL_HANDLE ) {
-          vkDestroyImageView( GetDevice(), Vulkan.FramebufferObjects[i].ImageView, nullptr );
-          Vulkan.FramebufferObjects[i].ImageView = VK_NULL_HANDLE;
+      for( size_t i = 0; i < Vulkan.Framebuffers.size(); ++i ) {
+        if( Vulkan.Framebuffers[i] != VK_NULL_HANDLE ) {
+          vkDestroyFramebuffer( GetDevice(), Vulkan.Framebuffers[i], nullptr );
+          Vulkan.Framebuffers[i] = VK_NULL_HANDLE;
         }
       }
-      Vulkan.FramebufferObjects.clear();
+      Vulkan.Framebuffers.clear();
     }
   }
 
   Tutorial03::~Tutorial03() {
     ChildClear();
+
+    if( GetDevice() != VK_NULL_HANDLE ) {
+      vkDeviceWaitIdle( GetDevice() );
+
+      if( Vulkan.ImageAvailableSemaphore != VK_NULL_HANDLE ) {
+        vkDestroySemaphore( GetDevice(), Vulkan.ImageAvailableSemaphore, nullptr );
+      }
+
+      if( Vulkan.RenderingFinishedSemaphore != VK_NULL_HANDLE ) {
+        vkDestroySemaphore( GetDevice(), Vulkan.RenderingFinishedSemaphore, nullptr );
+      }
+    }
   }
 
 } // namespace ApiWithoutSecrets

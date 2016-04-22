@@ -34,6 +34,9 @@ int main( int argc, char **argv ) {
   if( !tutorial03.CreatePipeline() ) {
     return -1;
   }
+  if( !tutorial03.CreateSemaphores() ) {
+    return -1;
+  }
   if( !tutorial03.CreateCommandBuffers() ) {
     return -1;
   }
