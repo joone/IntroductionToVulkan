@@ -709,8 +709,8 @@ namespace ApiWithoutSecrets {
         VK_ACCESS_TRANSFER_WRITE_BIT,               // VkAccessFlags                          dstAccessMask
         VK_IMAGE_LAYOUT_UNDEFINED,                  // VkImageLayout                          oldLayout
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,       // VkImageLayout                          newLayout
-        Vulkan.PresentQueueFamilyIndex,             // uint32_t                               srcQueueFamilyIndex
-        Vulkan.PresentQueueFamilyIndex,             // uint32_t                               dstQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                    // uint32_t                               srcQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                    // uint32_t                               dstQueueFamilyIndex
         swap_chain_images[i],                       // VkImage                                image
         image_subresource_range                     // VkImageSubresourceRange                subresourceRange
       };
@@ -722,8 +722,8 @@ namespace ApiWithoutSecrets {
         VK_ACCESS_MEMORY_READ_BIT,                  // VkAccessFlags                          dstAccessMask
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,       // VkImageLayout                          oldLayout
         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,            // VkImageLayout                          newLayout
-        Vulkan.PresentQueueFamilyIndex,             // uint32_t                               srcQueueFamilyIndex
-        Vulkan.PresentQueueFamilyIndex,             // uint32_t                               dstQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                    // uint32_t                               srcQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                    // uint32_t                               dstQueueFamilyIndex
         swap_chain_images[i],                       // VkImage                                image
         image_subresource_range                     // VkImageSubresourceRange                subresourceRange
       };
