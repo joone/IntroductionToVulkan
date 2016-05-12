@@ -70,7 +70,7 @@ namespace ApiWithoutSecrets {
 
     private:
       AutoDeleter( const AutoDeleter& );
-      AutoDeleter& operator=(const AutoDeleter&);
+      AutoDeleter& operator=( const AutoDeleter& );
       T         Object;
       F         Deleter;
       VkDevice  Device;

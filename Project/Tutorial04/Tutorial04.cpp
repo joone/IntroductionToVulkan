@@ -528,8 +528,10 @@ namespace ApiWithoutSecrets {
     return true;
   }
 
-  bool Tutorial04::RecordCommandBuffer( VkCommandBuffer command_buffer, VkImage image, VkImageView image_view ) {
-    Tools::AutoDeleter<VkFramebuffer, PFN_vkDestroyFramebuffer> framebuffer = CreateFramebuffer( image_view );
+  bool Tutorial04::RecordCommandBuffer( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer ) {
+    if( !CreateFramebuffer( framebuffer, image_parameters.ImageView ) ) {
+      return false;
+    }
 
     VkCommandBufferBeginInfo command_buffer_begin_info = {
       VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,        // VkStructureType                        sType
@@ -559,7 +561,7 @@ namespace ApiWithoutSecrets {
       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,           // VkImageLayout                          newLayout
       present_queue_family_index,                         // uint32_t                               srcQueueFamilyIndex
       graphics_queue_family_index,                        // uint32_t                               dstQueueFamilyIndex
-      image,                                              // VkImage                                image
+      image_parameters.Handle,                            // VkImage                                image
       image_subresource_range                             // VkImageSubresourceRange                subresourceRange
     };
     vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_present_to_draw );
@@ -572,7 +574,7 @@ namespace ApiWithoutSecrets {
       VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,           // VkStructureType                        sType
       nullptr,                                            // const void                            *pNext
       Vulkan.RenderPass,                                  // VkRenderPass                           renderPass
-      framebuffer.Get(),                                  // VkFramebuffer                          framebuffer
+      framebuffer,                                        // VkFramebuffer                          framebuffer
       {                                                   // VkRect2D                               renderArea
         {                                                 // VkOffset2D                             offset
           0,                                                // int32_t                                x
@@ -627,7 +629,7 @@ namespace ApiWithoutSecrets {
       VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                    // VkImageLayout                          newLayout
       graphics_queue_family_index,                        // uint32_t                               srcQueueFamilyIndex
       present_queue_family_index,                         // uint32_t                               dstQueueFamilyIndex
-      image,                                              // VkImage                                image
+      image_parameters.Handle,                            // VkImage                                image
       image_subresource_range                             // VkImageSubresourceRange                subresourceRange
     };
     vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_draw_to_present );
@@ -639,7 +641,11 @@ namespace ApiWithoutSecrets {
     return true;
   }
 
-  Tools::AutoDeleter<VkFramebuffer, PFN_vkDestroyFramebuffer> Tutorial04::CreateFramebuffer( VkImageView image_view ) {
+  bool Tutorial04::CreateFramebuffer( VkFramebuffer &framebuffer, VkImageView image_view ) {
+    if( framebuffer != VK_NULL_HANDLE ) {
+      vkDestroyFramebuffer( GetDevice(), framebuffer, nullptr );
+    }
+
     VkFramebufferCreateInfo framebuffer_create_info = {
       VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,      // VkStructureType                sType
       nullptr,                                        // const void                    *pNext
@@ -652,13 +658,12 @@ namespace ApiWithoutSecrets {
       1                                               // uint32_t                       layers
     };
 
-    VkFramebuffer framebuffer;
     if( vkCreateFramebuffer( GetDevice(), &framebuffer_create_info, nullptr, &framebuffer ) != VK_SUCCESS ) {
       std::cout << "Could not create a framebuffer!" << std::endl;
-      return Tools::AutoDeleter<VkFramebuffer, PFN_vkDestroyFramebuffer>();
+      return false;
     }
 
-    return Tools::AutoDeleter<VkFramebuffer, PFN_vkDestroyFramebuffer>( framebuffer, vkDestroyFramebuffer, GetDevice() );
+    return true;
   }
 
   bool Tutorial04::ChildOnWindowSizeChanged() {
@@ -667,7 +672,7 @@ namespace ApiWithoutSecrets {
 
   bool Tutorial04::Draw() {
     static size_t           resource_index = 0;
-    RenderingResourcesData  current_rendering_resource = Vulkan.RenderingResources[resource_index];
+    RenderingResourcesData &current_rendering_resource = Vulkan.RenderingResources[resource_index];
     VkSwapchainKHR          swap_chain = GetSwapChain().Handle;
     uint32_t                image_index;
 
@@ -691,7 +696,7 @@ namespace ApiWithoutSecrets {
         return false;
     }
 
-    if( !RecordCommandBuffer( current_rendering_resource.CommandBuffer, GetSwapChain().Images[image_index].Handle, GetSwapChain().Images[image_index].ImageView ) ) {
+    if( !RecordCommandBuffer( current_rendering_resource.CommandBuffer, GetSwapChain().Images[image_index], current_rendering_resource.Framebuffer ) ) {
       return false;
     }
 
@@ -746,6 +751,9 @@ namespace ApiWithoutSecrets {
       vkDeviceWaitIdle( GetDevice() );
 
       for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
+        if( Vulkan.RenderingResources[i].Framebuffer != VK_NULL_HANDLE ) {
+          vkDestroyFramebuffer( GetDevice(), Vulkan.RenderingResources[i].Framebuffer, nullptr );
+        }
         if( Vulkan.RenderingResources[i].CommandBuffer != VK_NULL_HANDLE ) {
           vkFreeCommandBuffers( GetDevice(), Vulkan.CommandPool, 1, &Vulkan.RenderingResources[i].CommandBuffer );
         }

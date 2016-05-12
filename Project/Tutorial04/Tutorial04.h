@@ -49,12 +49,14 @@ namespace ApiWithoutSecrets {
   // Struct containing data used during rendering process         //
   // ************************************************************ //
   struct RenderingResourcesData {
-    VkCommandBuffer                 CommandBuffer;
-    VkSemaphore                     ImageAvailableSemaphore;
-    VkSemaphore                     FinishedRenderingSemaphore;
-    VkFence                         Fence;
+    VkFramebuffer                         Framebuffer;
+    VkCommandBuffer                       CommandBuffer;
+    VkSemaphore                           ImageAvailableSemaphore;
+    VkSemaphore                           FinishedRenderingSemaphore;
+    VkFence                               Fence;
 
     RenderingResourcesData() :
+      Framebuffer( VK_NULL_HANDLE ),
       CommandBuffer( VK_NULL_HANDLE ),
       ImageAvailableSemaphore( VK_NULL_HANDLE ),
       FinishedRenderingSemaphore( VK_NULL_HANDLE ),
@@ -114,8 +116,8 @@ namespace ApiWithoutSecrets {
     bool                                                              CreateFences();
     bool                                                              AllocateBufferMemory( VkBuffer buffer, VkDeviceMemory *memory );
     bool                                                              CommitMemoryChanges( VkBuffer buffer, VkDeviceSize size );
-    bool                                                              RecordCommandBuffer( VkCommandBuffer command_buffer, VkImage image, VkImageView image_view );
-    Tools::AutoDeleter<VkFramebuffer, PFN_vkDestroyFramebuffer>       CreateFramebuffer( VkImageView image_view );
+    bool                                                              RecordCommandBuffer( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer );
+    bool                                                              CreateFramebuffer( VkFramebuffer &framebuffer, VkImageView image_view );
 
     void                                                              ChildClear() override;
     bool                                                              ChildOnWindowSizeChanged() override;
