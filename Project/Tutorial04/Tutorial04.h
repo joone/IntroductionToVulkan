@@ -115,8 +115,7 @@ namespace ApiWithoutSecrets {
     bool                                                              CreateSemaphores();
     bool                                                              CreateFences();
     bool                                                              AllocateBufferMemory( VkBuffer buffer, VkDeviceMemory *memory );
-    bool                                                              CommitMemoryChanges( VkBuffer buffer, VkDeviceSize size );
-    bool                                                              RecordCommandBuffer( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer );
+    bool                                                              PrepareFrame( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer );
     bool                                                              CreateFramebuffer( VkFramebuffer &framebuffer, VkImageView image_view );
 
     void                                                              ChildClear() override;

@@ -408,14 +408,14 @@ namespace ApiWithoutSecrets {
     Vulkan.VertexBuffer.Size = sizeof(vertex_data);
 
     VkBufferCreateInfo buffer_create_info = {
-      VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,             // VkStructureType                    sType
-      nullptr,                                          // const void                        *pNext
-      0,                                                // VkBufferCreateFlags                flags
-      Vulkan.VertexBuffer.Size,                         // VkDeviceSize                       size
-      VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,                // VkBufferUsageFlags                 usage
-      VK_SHARING_MODE_EXCLUSIVE,                        // VkSharingMode                      sharingMode
-      0,                                                // uint32_t                           queueFamilyIndexCount
-      nullptr                                           // const uint32_t                    *pQueueFamilyIndices
+      VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,             // VkStructureType        sType
+      nullptr,                                          // const void            *pNext
+      0,                                                // VkBufferCreateFlags    flags
+      Vulkan.VertexBuffer.Size,                         // VkDeviceSize           size
+      VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,                // VkBufferUsageFlags     usage
+      VK_SHARING_MODE_EXCLUSIVE,                        // VkSharingMode          sharingMode
+      0,                                                // uint32_t               queueFamilyIndexCount
+      nullptr                                           // const uint32_t        *pQueueFamilyIndices
     };
 
     if( vkCreateBuffer( GetDevice(), &buffer_create_info, nullptr, &Vulkan.VertexBuffer.Handle ) != VK_SUCCESS ) {
@@ -441,12 +441,16 @@ namespace ApiWithoutSecrets {
 
     memcpy( vertex_buffer_memory_pointer, vertex_data, Vulkan.VertexBuffer.Size );
 
-    vkUnmapMemory( GetDevice(), Vulkan.VertexBuffer.Memory );
+    VkMappedMemoryRange flush_range = {
+      VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,            // VkStructureType        sType
+      nullptr,                                          // const void            *pNext
+      Vulkan.VertexBuffer.Memory,                       // VkDeviceMemory         memory
+      0,                                                // VkDeviceSize           offset
+      VK_WHOLE_SIZE                                     // VkDeviceSize           size
+    };
+    vkFlushMappedMemoryRanges( GetDevice(), 1, &flush_range );
 
-    if( !CommitMemoryChanges( Vulkan.VertexBuffer.Handle, Vulkan.VertexBuffer.Size ) ) {
-      std::cout << "Could not setup a barrier for a vertex buffer!" << std::endl;
-      return false;
-    }
+    vkUnmapMemory( GetDevice(), Vulkan.VertexBuffer.Memory );
 
     return true;
   }
@@ -477,58 +481,7 @@ namespace ApiWithoutSecrets {
     return false;
   }
 
-  bool Tutorial04::CommitMemoryChanges( VkBuffer buffer, VkDeviceSize size ) {
-    VkCommandBufferBeginInfo command_buffer_begin_info = {
-      VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,    // VkStructureType                        sType
-      nullptr,                                        // const void                            *pNext
-      VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,    // VkCommandBufferUsageFlags              flags
-      nullptr                                         // const VkCommandBufferInheritanceInfo  *pInheritanceInfo
-    };
-
-    VkBufferMemoryBarrier barrier_from_host_write_to_attribute_read = {
-      VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,        // VkStructureType                        sType
-      nullptr,                                        // const void                            *pNext
-      VK_ACCESS_HOST_WRITE_BIT,                       // VkAccessFlags                          srcAccessMask
-      VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,            // VkAccessFlags                          dstAccessMask
-      GetGraphicsQueue().FamilyIndex,                 // uint32_t                               srcQueueFamilyIndex
-      GetGraphicsQueue().FamilyIndex,                 // uint32_t                               dstQueueFamilyIndex
-      buffer,                                         // VkBuffer                               buffer
-      0,                                              // VkDeviceSize                           offset
-      size                                            // VkDeviceSize                           size
-    };
-
-    vkBeginCommandBuffer( Vulkan.RenderingResources[0].CommandBuffer, &command_buffer_begin_info );
-
-    vkCmdPipelineBarrier( Vulkan.RenderingResources[0].CommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 1, &barrier_from_host_write_to_attribute_read, 0, nullptr );
-
-    if( vkEndCommandBuffer( Vulkan.RenderingResources[0].CommandBuffer ) != VK_SUCCESS ) {
-      std::cout << "Could not record command with buffer barrier!" << std::endl;
-      return false;
-    }
-
-    VkSubmitInfo submit_rendering_info = {
-      VK_STRUCTURE_TYPE_SUBMIT_INFO,                  // VkStructureType                        sType
-      nullptr,                                        // const void                            *pNext
-      0,                                              // uint32_t                               waitSemaphoreCount
-      nullptr,                                        // const VkSemaphore                     *pWaitSemaphores
-      nullptr,                                        // const VkPipelineStageFlags            *pWaitDstStageMask;
-      1,                                              // uint32_t                               commandBufferCount
-      &Vulkan.RenderingResources[0].CommandBuffer,    // const VkCommandBuffer                 *pCommandBuffers
-      0,                                              // uint32_t                               signalSemaphoreCount
-      nullptr                                         // const VkSemaphore                     *pSignalSemaphores
-    };
-
-    if( vkQueueSubmit( GetGraphicsQueue().Handle, 1, &submit_rendering_info, VK_NULL_HANDLE ) != VK_SUCCESS ) {
-      std::cout << "Error occurred during submission of command buffer with vertex buffer barrier!!" << std::endl;
-      return false;
-    }
-
-    vkDeviceWaitIdle( GetDevice() );
-
-    return true;
-  }
-
-  bool Tutorial04::RecordCommandBuffer( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer ) {
+  bool Tutorial04::PrepareFrame( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer ) {
     if( !CreateFramebuffer( framebuffer, image_parameters.ImageView ) ) {
       return false;
     }
@@ -696,7 +649,7 @@ namespace ApiWithoutSecrets {
         return false;
     }
 
-    if( !RecordCommandBuffer( current_rendering_resource.CommandBuffer, GetSwapChain().Images[image_index], current_rendering_resource.Framebuffer ) ) {
+    if( !PrepareFrame( current_rendering_resource.CommandBuffer, GetSwapChain( ).Images[image_index], current_rendering_resource.Framebuffer ) ) {
       return false;
     }
 
