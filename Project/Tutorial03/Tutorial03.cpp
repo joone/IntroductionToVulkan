@@ -494,7 +494,7 @@ namespace ApiWithoutSecrets {
         return false;
     }
 
-    VkPipelineStageFlags wait_dst_stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    VkPipelineStageFlags wait_dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     VkSubmitInfo submit_info = {
       VK_STRUCTURE_TYPE_SUBMIT_INFO,                // VkStructureType              sType
       nullptr,                                      // const void                  *pNext
