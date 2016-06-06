@@ -8,8 +8,8 @@
 // Intel does not assume any responsibility for any errors which may appear in this software
 // nor any responsibility to update it.
 
-#if !defined(TUTORIAL_03_HEADER)
-#define TUTORIAL_03_HEADER
+#if !defined(TUTORIAL_04_HEADER)
+#define TUTORIAL_04_HEADER
 
 #include "VulkanCommon.h"
 #include "Tools.h"
@@ -124,4 +124,4 @@ namespace ApiWithoutSecrets {
 
 } // namespace ApiWithoutSecrets
 
-#endif // TUTORIAL_03_HEADER
+#endif // TUTORIAL_04_HEADER
