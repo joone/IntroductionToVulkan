@@ -49,3 +49,12 @@ Here I present render pass, framebuffer and pipeline objects which are necessary
 #### Buffers, images and fences
 
 This tutorial shows how to set up vertex attributes and bind buffer with vertex data. Here we also create images, memory objects and fences.
+
+<hr>
+
+### [05 - Staging Resources](./Project/Tutorial05/)
+<img src="./Document/Images/05 - Staging Resources.png" height="96px" align="right">
+
+#### Copying data between buffers
+
+In this example staging resources are presented. They are used as an intermediate resources for copying data between CPU and GPU. This way, resources involved in rendering can be bound only to a device local (very fast) memory.

@@ -128,3 +128,9 @@ add_executable( "04" "Vertex_Attributes"
 	Tutorial04/Tutorial04.h
 	Tutorial04/main.cpp
 	Tutorial04/Tutorial04.cpp )
+	
+add_executable( "05" "Staging_Resources"
+	${ALL_BASIC_AND_ADVANCED_SHARED_FILES}
+	Tutorial05/Tutorial05.h
+	Tutorial05/main.cpp
+	Tutorial05/Tutorial05.cpp )
