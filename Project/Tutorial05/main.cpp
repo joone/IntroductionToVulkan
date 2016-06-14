@@ -24,7 +24,7 @@ int main( int argc, char **argv ) {
     return -1;
   }
 
-  // Tutorial 04
+  // Tutorial 05
   if( !tutorial05.CreateRenderPass() ) {
     return -1;
   }

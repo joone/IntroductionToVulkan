@@ -457,7 +457,7 @@ namespace ApiWithoutSecrets {
 
   bool Tutorial04::AllocateBufferMemory( VkBuffer buffer, VkDeviceMemory *memory ) {
     VkMemoryRequirements buffer_memory_requirements;
-    vkGetBufferMemoryRequirements( GetDevice(), Vulkan.VertexBuffer.Handle, &buffer_memory_requirements );
+    vkGetBufferMemoryRequirements( GetDevice(), buffer, &buffer_memory_requirements );
 
     VkPhysicalDeviceMemoryProperties memory_properties;
     vkGetPhysicalDeviceMemoryProperties( GetPhysicalDevice(), &memory_properties );
@@ -482,7 +482,7 @@ namespace ApiWithoutSecrets {
   }
 
   bool Tutorial04::PrepareFrame( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer ) {
-    if( !CreateFramebuffer( framebuffer, image_parameters.ImageView ) ) {
+    if( !CreateFramebuffer( framebuffer, image_parameters.View ) ) {
       return false;
     }
 

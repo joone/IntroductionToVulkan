@@ -85,7 +85,7 @@ namespace ApiWithoutSecrets {
         0,                                          // VkFramebufferCreateFlags       flags
         Vulkan.RenderPass,                          // VkRenderPass                   renderPass
         1,                                          // uint32_t                       attachmentCount
-        &swap_chain_images[i].ImageView,            // const VkImageView             *pAttachments
+        &swap_chain_images[i].View,                 // const VkImageView             *pAttachments
         300,                                        // uint32_t                       width
         300,                                        // uint32_t                       height
         1                                           // uint32_t                       layers

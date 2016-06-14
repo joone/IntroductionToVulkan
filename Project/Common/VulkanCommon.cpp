@@ -439,9 +439,9 @@ namespace ApiWithoutSecrets {
     }
 
     for( size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i ) {
-      if( Vulkan.SwapChain.Images[i].ImageView != VK_NULL_HANDLE ) {
-        vkDestroyImageView( GetDevice(), Vulkan.SwapChain.Images[i].ImageView, nullptr );
-        Vulkan.SwapChain.Images[i].ImageView = VK_NULL_HANDLE;
+      if( Vulkan.SwapChain.Images[i].View != VK_NULL_HANDLE ) {
+        vkDestroyImageView( GetDevice(), Vulkan.SwapChain.Images[i].View, nullptr );
+        Vulkan.SwapChain.Images[i].View = VK_NULL_HANDLE;
       }
     }
     Vulkan.SwapChain.Images.clear();
@@ -570,7 +570,7 @@ namespace ApiWithoutSecrets {
         }
       };
 
-      if( vkCreateImageView( GetDevice(), &image_view_create_info, nullptr, &Vulkan.SwapChain.Images[i].ImageView ) != VK_SUCCESS ) {
+      if( vkCreateImageView( GetDevice(), &image_view_create_info, nullptr, &Vulkan.SwapChain.Images[i].View ) != VK_SUCCESS ) {
         std::cout << "Could not create image view for framebuffer!" << std::endl;
         return false;
       }
@@ -700,8 +700,8 @@ namespace ApiWithoutSecrets {
       vkDeviceWaitIdle( Vulkan.Device );
 
       for( size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i ) {
-        if( Vulkan.SwapChain.Images[i].ImageView != VK_NULL_HANDLE ) {
-          vkDestroyImageView( GetDevice(), Vulkan.SwapChain.Images[i].ImageView, nullptr );
+        if( Vulkan.SwapChain.Images[i].View != VK_NULL_HANDLE ) {
+          vkDestroyImageView( GetDevice(), Vulkan.SwapChain.Images[i].View, nullptr );
         }
       }
 

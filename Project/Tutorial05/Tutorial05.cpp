@@ -391,6 +391,7 @@ namespace ApiWithoutSecrets {
     Vulkan.VertexBuffer.Size = static_cast<uint32_t>(vertex_data.size() * sizeof(vertex_data[0]));
     if( !CreateBuffer( VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, Vulkan.VertexBuffer ) ) {
       std::cout << "Could not create vertex buffer!" << std::endl;
+      return false;
     }
 
     return true;
@@ -400,6 +401,7 @@ namespace ApiWithoutSecrets {
     Vulkan.StagingBuffer.Size = 4000;
     if( !CreateBuffer( VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, Vulkan.StagingBuffer ) ) {
       std::cout << "Could not staging buffer!" << std::endl;
+      return false;
     }
 
     return true;
@@ -437,7 +439,7 @@ namespace ApiWithoutSecrets {
 
   bool Tutorial05::AllocateBufferMemory( VkBuffer buffer, VkMemoryPropertyFlagBits property, VkDeviceMemory *memory ) {
     VkMemoryRequirements buffer_memory_requirements;
-    vkGetBufferMemoryRequirements( GetDevice(), Vulkan.VertexBuffer.Handle, &buffer_memory_requirements );
+    vkGetBufferMemoryRequirements( GetDevice(), buffer, &buffer_memory_requirements );
 
     VkPhysicalDeviceMemoryProperties memory_properties;
     vkGetPhysicalDeviceMemoryProperties( GetPhysicalDevice(), &memory_properties );
@@ -559,7 +561,7 @@ namespace ApiWithoutSecrets {
   }
 
   bool Tutorial05::PrepareFrame( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer ) {
-    if( !CreateFramebuffer( framebuffer, image_parameters.ImageView ) ) {
+    if( !CreateFramebuffer( framebuffer, image_parameters.View ) ) {
       return false;
     }
 
