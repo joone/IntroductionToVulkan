@@ -46,9 +46,9 @@ Here I present render pass, framebuffer and pipeline objects which are necessary
 ### [04 - Vertex Attributes](./Project/Tutorial04/)
 <img src="./Document/Images/04 - Vertex Attributes.png" height="96px" align="right">
 
-#### Buffers, images and fences
+#### Buffers, memory objects and fences
 
-This tutorial shows how to set up vertex attributes and bind buffer with vertex data. Here we also create images, memory objects and fences.
+This tutorial shows how to set up vertex attributes and bind buffer with a vertex data. Here we also create memory object (which is used by buffer) and fences.
 
 <hr>
 
