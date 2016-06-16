@@ -12,7 +12,8 @@ REM Intel does not assume any responsibility for any errors which may appear in 
 REM nor any responsibility to update it.
 
 if [%1] == [] (
-    echo No arguments provided! Please specify folder name.
+    echo No arguments provided! Please specify folder number.
+    echo Example usage: compile_shaders.bat 03
     goto end
 )
 
