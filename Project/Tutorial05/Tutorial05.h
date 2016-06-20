@@ -83,6 +83,7 @@ namespace ApiWithoutSecrets {
       RenderPass( VK_NULL_HANDLE ),
       GraphicsPipeline( VK_NULL_HANDLE ),
       VertexBuffer(),
+      StagingBuffer(),
       CommandPool( VK_NULL_HANDLE ),
       RenderingResources( ResourcesCount ) {
     }

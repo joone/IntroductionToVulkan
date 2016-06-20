@@ -521,7 +521,7 @@ namespace ApiWithoutSecrets {
       0,                                                  // VkDeviceSize                           dstOffset
       Vulkan.VertexBuffer.Size                            // VkDeviceSize                           size
     };
-    vkCmdCopyBuffer(command_buffer, Vulkan.StagingBuffer.Handle, Vulkan.VertexBuffer.Handle, 1, &buffer_copy_info);
+    vkCmdCopyBuffer( command_buffer, Vulkan.StagingBuffer.Handle, Vulkan.VertexBuffer.Handle, 1, &buffer_copy_info );
 
     VkBufferMemoryBarrier buffer_memory_barrier = {
       VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,            // VkStructureType                        sType;
@@ -728,7 +728,7 @@ namespace ApiWithoutSecrets {
         return false;
     }
 
-    if( !PrepareFrame( current_rendering_resource.CommandBuffer, GetSwapChain( ).Images[image_index], current_rendering_resource.Framebuffer ) ) {
+    if( !PrepareFrame( current_rendering_resource.CommandBuffer, GetSwapChain().Images[image_index], current_rendering_resource.Framebuffer ) ) {
       return false;
     }
 

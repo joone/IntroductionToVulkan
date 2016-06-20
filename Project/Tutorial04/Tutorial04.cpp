@@ -649,7 +649,7 @@ namespace ApiWithoutSecrets {
         return false;
     }
 
-    if( !PrepareFrame( current_rendering_resource.CommandBuffer, GetSwapChain( ).Images[image_index], current_rendering_resource.Framebuffer ) ) {
+    if( !PrepareFrame( current_rendering_resource.CommandBuffer, GetSwapChain().Images[image_index], current_rendering_resource.Framebuffer ) ) {
       return false;
     }
 
