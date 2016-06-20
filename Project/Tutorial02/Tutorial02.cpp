@@ -430,6 +430,8 @@ namespace ApiWithoutSecrets {
   }
 
   bool Tutorial02::CreateSwapChain() {
+    CanRender = false;
+
     if( Vulkan.Device != VK_NULL_HANDLE ) {
       vkDeviceWaitIdle( Vulkan.Device );
     }
@@ -480,6 +482,11 @@ namespace ApiWithoutSecrets {
     if( static_cast<int>(desired_present_mode) == -1 ) {
       return false;
     }
+    if( (desired_extent.width == 0) || (desired_extent.height == 0) ) {
+      // Current surface size is (0, 0) so we can't create a swap chain and render anything (CanRender == false)
+      // But we don't wont to kill the application as this situation may occur i.e. when window gets minimized
+      return true;
+    }
 
     VkSwapchainCreateInfoKHR swap_chain_create_info = {
       VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // VkStructureType                sType
@@ -509,6 +516,8 @@ namespace ApiWithoutSecrets {
     if( old_swap_chain != VK_NULL_HANDLE ) {
       vkDestroySwapchainKHR( Vulkan.Device, old_swap_chain, nullptr );
     }
+
+    CanRender = true;
 
     return true;
   }

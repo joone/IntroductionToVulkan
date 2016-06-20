@@ -58,10 +58,14 @@ namespace ApiWithoutSecrets {
   bool VulkanCommon::OnWindowSizeChanged() {
     ChildClear();
 
-    if( !CreateSwapChain() ) {
-      return false;
+    if( CreateSwapChain() ) {
+      if( CanRender ) {
+        return ChildOnWindowSizeChanged();
+      }
+      return true;
     }
-    return ChildOnWindowSizeChanged();
+
+    return false;
   }
 
   VkPhysicalDevice VulkanCommon::GetPhysicalDevice() const {
@@ -434,6 +438,8 @@ namespace ApiWithoutSecrets {
   }
 
   bool VulkanCommon::CreateSwapChain() {
+    CanRender = false;
+
     if( Vulkan.Device != VK_NULL_HANDLE ) {
       vkDeviceWaitIdle( Vulkan.Device );
     }
@@ -491,6 +497,11 @@ namespace ApiWithoutSecrets {
     }
     if( static_cast<int>(desired_present_mode) == -1 ) {
       return false;
+    }
+    if( (desired_extent.width == 0) || (desired_extent.height == 0) ) {
+      // Current surface size is (0, 0) so we can't create a swap chain and render anything (CanRender == false)
+      // But we don't wont to kill the application as this situation may occur i.e. when window gets minimized
+      return true;
     }
 
     VkSwapchainCreateInfoKHR swap_chain_create_info = {
@@ -575,6 +586,8 @@ namespace ApiWithoutSecrets {
         return false;
       }
     }
+
+    CanRender = true;
 
     return true;
   }
