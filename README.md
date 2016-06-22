@@ -58,3 +58,12 @@ This tutorial shows how to set up vertex attributes and bind buffer with a verte
 #### Copying data between buffers
 
 In this example staging resources are presented. They are used as an intermediate resources for copying data between CPU and GPU. This way, resources involved in rendering can be bound only to a device local (very fast) memory.
+
+<hr>
+
+### [06 - Descriptor Sets](./Project/Tutorial06/)
+<img src="./Document/Images/06 - Descriptor Sets.png" height="96px" align="right">
+
+#### Using textures in shaders
+
+This tutorial shows what resources are needed and how they should be prepared to be able to use textures (or other shader resources) in shader programs.

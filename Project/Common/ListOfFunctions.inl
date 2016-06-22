@@ -160,4 +160,20 @@ VK_DEVICE_LEVEL_FUNCTION( vkDestroyFence )
 // Tutorial 05
 VK_DEVICE_LEVEL_FUNCTION( vkCmdCopyBuffer )
 
+// Tutorial 06
+VK_DEVICE_LEVEL_FUNCTION( vkCreateImage )
+VK_DEVICE_LEVEL_FUNCTION( vkGetImageMemoryRequirements )
+VK_DEVICE_LEVEL_FUNCTION( vkBindImageMemory )
+VK_DEVICE_LEVEL_FUNCTION( vkCreateSampler )
+VK_DEVICE_LEVEL_FUNCTION( vkCmdCopyBufferToImage )
+VK_DEVICE_LEVEL_FUNCTION( vkCreateDescriptorSetLayout )
+VK_DEVICE_LEVEL_FUNCTION( vkCreateDescriptorPool )
+VK_DEVICE_LEVEL_FUNCTION( vkAllocateDescriptorSets )
+VK_DEVICE_LEVEL_FUNCTION( vkUpdateDescriptorSets )
+VK_DEVICE_LEVEL_FUNCTION( vkCmdBindDescriptorSets )
+VK_DEVICE_LEVEL_FUNCTION( vkDestroyDescriptorPool )
+VK_DEVICE_LEVEL_FUNCTION( vkDestroyDescriptorSetLayout )
+VK_DEVICE_LEVEL_FUNCTION( vkDestroySampler )
+VK_DEVICE_LEVEL_FUNCTION( vkDestroyImage )
+
 #undef VK_DEVICE_LEVEL_FUNCTION
