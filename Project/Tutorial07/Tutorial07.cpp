@@ -948,16 +948,16 @@ namespace ApiWithoutSecrets {
 
   const std::vector<float>& Tutorial07::GetVertexData() const {
     static const std::vector<float> vertex_data = {
-      -200.0f, -200.0f, 0.0f, 1.0f,
+      -170.0f, -170.0f, 0.0f, 1.0f,
       -0.1f, -0.1f,
       //
-      -200.0f, 200.0f, 0.0f, 1.0f,
+      -170.0f, 170.0f, 0.0f, 1.0f,
       -0.1f, 1.1f,
       //
-      200.0f, -200.0f, 0.0f, 1.0f,
+      170.0f, -170.0f, 0.0f, 1.0f,
       1.1f, -0.1f,
       //
-      200.0f, 200.0f, 0.0f, 1.0f,
+      170.0f, 170.0f, 0.0f, 1.0f,
       1.1f, 1.1f,
     };
 
