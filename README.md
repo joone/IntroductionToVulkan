@@ -67,3 +67,12 @@ In this example staging resources are presented. They are used as an intermediat
 #### Using textures in shaders
 
 This tutorial shows what resources are needed and how they should be prepared to be able to use textures (or other shader resources) in shader programs.
+
+<hr>
+
+### [07 - Uniform Buffers](./Project/Tutorial07/)
+<img src="./Document/Images/07 - Uniform Buffers.png" height="96px" align="right">
+
+#### Using buffers in shaders
+
+Here it is shown how to add uniform buffer to descriptor sets, how to provide data for projection matrix through it and how to use it inside shader.
