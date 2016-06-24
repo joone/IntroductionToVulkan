@@ -8,7 +8,7 @@
 // Intel does not assume any responsibility for any errors which may appear in this software
 // nor any responsibility to update it.
 
-#version 430
+#version 450
 
 layout(set=0, binding=0) uniform sampler2D u_Texture;
 

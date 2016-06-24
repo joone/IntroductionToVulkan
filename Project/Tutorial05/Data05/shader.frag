@@ -8,7 +8,7 @@
 // Intel does not assume any responsibility for any errors which may appear in this software
 // nor any responsibility to update it.
 
-#version 430
+#version 450
 
 layout(location = 0) in vec4 v_Color;
 
