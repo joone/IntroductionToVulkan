@@ -20,50 +20,71 @@ namespace ApiWithoutSecrets {
   bool Tutorial04::CreateRenderPass() {
     VkAttachmentDescription attachment_descriptions[] = {
       {
-        0,                                          // VkAttachmentDescriptionFlags   flags
-        GetSwapChain().Format,                      // VkFormat                       format
-        VK_SAMPLE_COUNT_1_BIT,                      // VkSampleCountFlagBits          samples
-        VK_ATTACHMENT_LOAD_OP_CLEAR,                // VkAttachmentLoadOp             loadOp
-        VK_ATTACHMENT_STORE_OP_STORE,               // VkAttachmentStoreOp            storeOp
-        VK_ATTACHMENT_LOAD_OP_DONT_CARE,            // VkAttachmentLoadOp             stencilLoadOp
-        VK_ATTACHMENT_STORE_OP_DONT_CARE,           // VkAttachmentStoreOp            stencilStoreOp
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,   // VkImageLayout                  initialLayout;
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL    // VkImageLayout                  finalLayout
+        0,                                              // VkAttachmentDescriptionFlags   flags
+        GetSwapChain().Format,                          // VkFormat                       format
+        VK_SAMPLE_COUNT_1_BIT,                          // VkSampleCountFlagBits          samples
+        VK_ATTACHMENT_LOAD_OP_CLEAR,                    // VkAttachmentLoadOp             loadOp
+        VK_ATTACHMENT_STORE_OP_STORE,                   // VkAttachmentStoreOp            storeOp
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE,                // VkAttachmentLoadOp             stencilLoadOp
+        VK_ATTACHMENT_STORE_OP_DONT_CARE,               // VkAttachmentStoreOp            stencilStoreOp
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                // VkImageLayout                  initialLayout;
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR                 // VkImageLayout                  finalLayout
       }
     };
 
     VkAttachmentReference color_attachment_references[] = {
       {
-        0,                                          // uint32_t                       attachment
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL    // VkImageLayout                  layout
+        0,                                              // uint32_t                       attachment
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL        // VkImageLayout                  layout
       }
     };
 
     VkSubpassDescription subpass_descriptions[] = {
       {
-        0,                                          // VkSubpassDescriptionFlags      flags
-        VK_PIPELINE_BIND_POINT_GRAPHICS,            // VkPipelineBindPoint            pipelineBindPoint
-        0,                                          // uint32_t                       inputAttachmentCount
-        nullptr,                                    // const VkAttachmentReference   *pInputAttachments
-        1,                                          // uint32_t                       colorAttachmentCount
-        color_attachment_references,                // const VkAttachmentReference   *pColorAttachments
-        nullptr,                                    // const VkAttachmentReference   *pResolveAttachments
-        nullptr,                                    // const VkAttachmentReference   *pDepthStencilAttachment
-        0,                                          // uint32_t                       preserveAttachmentCount
-        nullptr                                     // const uint32_t*                pPreserveAttachments
+        0,                                              // VkSubpassDescriptionFlags      flags
+        VK_PIPELINE_BIND_POINT_GRAPHICS,                // VkPipelineBindPoint            pipelineBindPoint
+        0,                                              // uint32_t                       inputAttachmentCount
+        nullptr,                                        // const VkAttachmentReference   *pInputAttachments
+        1,                                              // uint32_t                       colorAttachmentCount
+        color_attachment_references,                    // const VkAttachmentReference   *pColorAttachments
+        nullptr,                                        // const VkAttachmentReference   *pResolveAttachments
+        nullptr,                                        // const VkAttachmentReference   *pDepthStencilAttachment
+        0,                                              // uint32_t                       preserveAttachmentCount
+        nullptr                                         // const uint32_t*                pPreserveAttachments
+      }
+    };
+
+    std::vector<VkSubpassDependency> dependencies = {
+      {
+        VK_SUBPASS_EXTERNAL,                            // uint32_t                       srcSubpass
+        0,                                              // uint32_t                       dstSubpass
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,           // VkPipelineStageFlags           srcStageMask
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,  // VkPipelineStageFlags           dstStageMask
+        VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                  srcAccessMask
+        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,           // VkAccessFlags                  dstAccessMask
+        VK_DEPENDENCY_BY_REGION_BIT                     // VkDependencyFlags              dependencyFlags
+      },
+      {
+        0,                                              // uint32_t                       srcSubpass
+        VK_SUBPASS_EXTERNAL,                            // uint32_t                       dstSubpass
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,  // VkPipelineStageFlags           srcStageMask
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,           // VkPipelineStageFlags           dstStageMask
+        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,           // VkAccessFlags                  srcAccessMask
+        VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                  dstAccessMask
+        VK_DEPENDENCY_BY_REGION_BIT                     // VkDependencyFlags              dependencyFlags
       }
     };
 
     VkRenderPassCreateInfo render_pass_create_info = {
-      VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,    // VkStructureType                sType
-      nullptr,                                      // const void                    *pNext
-      0,                                            // VkRenderPassCreateFlags        flags
-      1,                                            // uint32_t                       attachmentCount
-      attachment_descriptions,                      // const VkAttachmentDescription *pAttachments
-      1,                                            // uint32_t                       subpassCount
-      subpass_descriptions,                         // const VkSubpassDescription    *pSubpasses
-      0,                                            // uint32_t                       dependencyCount
-      nullptr                                       // const VkSubpassDependency     *pDependencies
+      VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,        // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      0,                                                // VkRenderPassCreateFlags        flags
+      1,                                                // uint32_t                       attachmentCount
+      attachment_descriptions,                          // const VkAttachmentDescription *pAttachments
+      1,                                                // uint32_t                       subpassCount
+      subpass_descriptions,                             // const VkSubpassDescription    *pSubpasses
+      static_cast<uint32_t>(dependencies.size()),       // uint32_t                       dependencyCount
+      &dependencies[0]                                  // const VkSubpassDependency     *pDependencies
     };
 
     if( vkCreateRenderPass( GetDevice(), &render_pass_create_info, nullptr, &Vulkan.RenderPass ) != VK_SUCCESS ) {
@@ -503,21 +524,21 @@ namespace ApiWithoutSecrets {
       1                                                   // uint32_t                               layerCount
     };
 
-    uint32_t present_queue_family_index = (GetPresentQueue().Handle != GetGraphicsQueue().Handle) ? GetPresentQueue().FamilyIndex : VK_QUEUE_FAMILY_IGNORED;
-    uint32_t graphics_queue_family_index = (GetPresentQueue().Handle != GetGraphicsQueue().Handle) ? GetGraphicsQueue().FamilyIndex : VK_QUEUE_FAMILY_IGNORED;
-    VkImageMemoryBarrier barrier_from_present_to_draw = {
-      VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,             // VkStructureType                        sType
-      nullptr,                                            // const void                            *pNext
-      VK_ACCESS_MEMORY_READ_BIT,                          // VkAccessFlags                          srcAccessMask
-      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,               // VkAccessFlags                          dstAccessMask
-      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                    // VkImageLayout                          oldLayout
-      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,           // VkImageLayout                          newLayout
-      present_queue_family_index,                         // uint32_t                               srcQueueFamilyIndex
-      graphics_queue_family_index,                        // uint32_t                               dstQueueFamilyIndex
-      image_parameters.Handle,                            // VkImage                                image
-      image_subresource_range                             // VkImageSubresourceRange                subresourceRange
-    };
-    vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_present_to_draw );
+    if( GetPresentQueue().Handle != GetGraphicsQueue().Handle ) {
+      VkImageMemoryBarrier barrier_from_present_to_draw = {
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,           // VkStructureType                        sType
+        nullptr,                                          // const void                            *pNext
+        VK_ACCESS_MEMORY_READ_BIT,                        // VkAccessFlags                          srcAccessMask
+        VK_ACCESS_MEMORY_READ_BIT,                        // VkAccessFlags                          dstAccessMask
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                  // VkImageLayout                          oldLayout
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                  // VkImageLayout                          newLayout
+        GetPresentQueue().FamilyIndex,                    // uint32_t                               srcQueueFamilyIndex
+        GetGraphicsQueue().FamilyIndex,                   // uint32_t                               dstQueueFamilyIndex
+        image_parameters.Handle,                          // VkImage                                image
+        image_subresource_range                           // VkImageSubresourceRange                subresourceRange
+      };
+      vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_present_to_draw );
+    }
 
     VkClearValue clear_value = {
       { 1.0f, 0.8f, 0.4f, 0.0f },                         // VkClearColorValue                      color
@@ -573,19 +594,21 @@ namespace ApiWithoutSecrets {
 
     vkCmdEndRenderPass( command_buffer );
 
-    VkImageMemoryBarrier barrier_from_draw_to_present = {
-      VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,             // VkStructureType                        sType
-      nullptr,                                            // const void                            *pNext
-      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,               // VkAccessFlags                          srcAccessMask
-      VK_ACCESS_MEMORY_READ_BIT,                          // VkAccessFlags                          dstAccessMask
-      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,           // VkImageLayout                          oldLayout
-      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                    // VkImageLayout                          newLayout
-      graphics_queue_family_index,                        // uint32_t                               srcQueueFamilyIndex
-      present_queue_family_index,                         // uint32_t                               dstQueueFamilyIndex
-      image_parameters.Handle,                            // VkImage                                image
-      image_subresource_range                             // VkImageSubresourceRange                subresourceRange
-    };
-    vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_draw_to_present );
+    if( GetGraphicsQueue().Handle != GetPresentQueue().Handle ) {
+      VkImageMemoryBarrier barrier_from_draw_to_present = {
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,           // VkStructureType                        sType
+        nullptr,                                          // const void                            *pNext
+        VK_ACCESS_MEMORY_READ_BIT,                        // VkAccessFlags                          srcAccessMask
+        VK_ACCESS_MEMORY_READ_BIT,                        // VkAccessFlags                          dstAccessMask
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                  // VkImageLayout                          oldLayout
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                  // VkImageLayout                          newLayout
+        GetGraphicsQueue().FamilyIndex,                   // uint32_t                               srcQueueFamilyIndex
+        GetPresentQueue().FamilyIndex,                    // uint32_t                               dstQueueFamilyIndex
+        image_parameters.Handle,                          // VkImage                                image
+        image_subresource_range                           // VkImageSubresourceRange                subresourceRange
+      };
+      vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_draw_to_present );
+    }
 
     if( vkEndCommandBuffer( command_buffer ) != VK_SUCCESS ) {
       std::cout << "Could not record command buffer!" << std::endl;
