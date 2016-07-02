@@ -210,7 +210,7 @@ namespace ApiWithoutSecrets {
     uint32_t minor_version = VK_VERSION_MINOR( device_properties.apiVersion );
     uint32_t patch_version = VK_VERSION_PATCH( device_properties.apiVersion );
 
-    if( (major_version < 1) &&
+    if( (major_version < 1) ||
         (device_properties.limits.maxImageDimension2D < 4096) ) {
       std::cout << "Physical device " << physical_device << " doesn't support required parameters!" << std::endl;
       return false;
