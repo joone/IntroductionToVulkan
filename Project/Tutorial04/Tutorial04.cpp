@@ -8,6 +8,7 @@
 // Intel does not assume any responsibility for any errors which may appear in this software
 // nor any responsibility to update it.
 
+#include <cstddef>
 #include "Tutorial04.h"
 #include "VulkanFunctions.h"
 
@@ -169,35 +170,37 @@ namespace ApiWithoutSecrets {
       }
     };
 
-    VkVertexInputBindingDescription vertex_binding_description = {
-      0,                                                            // uint32_t                                       binding
-      sizeof(VertexData),                                           // uint32_t                                       stride
-      VK_VERTEX_INPUT_RATE_VERTEX                                   // VkVertexInputRate                              inputRate
+    std::vector<VkVertexInputBindingDescription> vertex_binding_descriptions = {
+      {
+        0,                                                          // uint32_t                                       binding
+        sizeof(VertexData),                                         // uint32_t                                       stride
+        VK_VERTEX_INPUT_RATE_VERTEX                                 // VkVertexInputRate                              inputRate
+      }
     };
 
-    VkVertexInputAttributeDescription vertex_attribute_descriptions[] = {
+    std::vector<VkVertexInputAttributeDescription> vertex_attribute_descriptions = {
       {
         0,                                                          // uint32_t                                       location
-        vertex_binding_description.binding,                         // uint32_t                                       binding
+        vertex_binding_descriptions[0].binding,                     // uint32_t                                       binding
         VK_FORMAT_R32G32B32A32_SFLOAT,                              // VkFormat                                       format
-        0                                                           // uint32_t                                       offset
+        offsetof(struct VertexData, x)                              // uint32_t                                       offset
       },
       {
         1,                                                          // uint32_t                                       location
-        vertex_binding_description.binding,                         // uint32_t                                       binding
+        vertex_binding_descriptions[0].binding,                     // uint32_t                                       binding
         VK_FORMAT_R32G32B32A32_SFLOAT,                              // VkFormat                                       format
-        4 * sizeof(float)                                           // uint32_t                                       offset
+        offsetof(struct VertexData, r)                              // uint32_t                                       offset
       }
     };
 
     VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,    // VkStructureType                                sType
       nullptr,                                                      // const void                                    *pNext
-      0,                                                            // VkPipelineVertexInputStateCreateFlags          flags;
-      1,                                                            // uint32_t                                       vertexBindingDescriptionCount
-      &vertex_binding_description,                                  // const VkVertexInputBindingDescription         *pVertexBindingDescriptions
-      2,                                                            // uint32_t                                       vertexAttributeDescriptionCount
-      vertex_attribute_descriptions                                 // const VkVertexInputAttributeDescription       *pVertexAttributeDescriptions
+      0,                                                            // VkPipelineVertexInputStateCreateFlags          flags
+      static_cast<uint32_t>(vertex_binding_descriptions.size()),    // uint32_t                                       vertexBindingDescriptionCount
+      &vertex_binding_descriptions[0],                              // const VkVertexInputBindingDescription         *pVertexBindingDescriptions
+      static_cast<uint32_t>(vertex_attribute_descriptions.size()),  // uint32_t                                       vertexAttributeDescriptionCount
+      &vertex_attribute_descriptions[0]                             // const VkVertexInputAttributeDescription       *pVertexAttributeDescriptions
     };
 
     VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info = {
@@ -269,7 +272,7 @@ namespace ApiWithoutSecrets {
       { 0.0f, 0.0f, 0.0f, 0.0f }                                    // float                                          blendConstants[4]
     };
 
-    VkDynamicState dynamic_states[] = {
+    std::vector<VkDynamicState> dynamic_states = {
       VK_DYNAMIC_STATE_VIEWPORT,
       VK_DYNAMIC_STATE_SCISSOR,
     };
@@ -278,8 +281,8 @@ namespace ApiWithoutSecrets {
       VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,         // VkStructureType                                sType
       nullptr,                                                      // const void                                    *pNext
       0,                                                            // VkPipelineDynamicStateCreateFlags              flags
-      2,                                                            // uint32_t                                       dynamicStateCount
-      dynamic_states                                                // const VkDynamicState                          *pDynamicStates
+      static_cast<uint32_t>(dynamic_states.size()),                 // uint32_t                                       dynamicStateCount
+      &dynamic_states[0]                                            // const VkDynamicState                          *pDynamicStates
     };
 
     Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> pipeline_layout = CreatePipelineLayout();
@@ -312,96 +315,6 @@ namespace ApiWithoutSecrets {
     if( vkCreateGraphicsPipelines( GetDevice(), VK_NULL_HANDLE, 1, &pipeline_create_info, nullptr, &Vulkan.GraphicsPipeline ) != VK_SUCCESS ) {
       std::cout << "Could not create graphics pipeline!" << std::endl;
       return false;
-    }
-    return true;
-  }
-
-  bool Tutorial04::CreateRenderingResources() {
-    if( !CreateCommandBuffers() ) {
-      return false;
-    }
-    if( !CreateSemaphores() ) {
-      return false;
-    }
-    if( !CreateFences() ) {
-      return false;
-    }
-    return true;
-  }
-
-  bool Tutorial04::CreateCommandBuffers() {
-    if( !CreateCommandPool( GetGraphicsQueue().FamilyIndex, &Vulkan.CommandPool ) ) {
-      std::cout << "Could not create command pool!" << std::endl;
-      return false;
-    }
-    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
-      if( !AllocateCommandBuffers( Vulkan.CommandPool, 1, &Vulkan.RenderingResources[i].CommandBuffer ) ) {
-        std::cout << "Could not allocate command buffer!" << std::endl;
-        return false;
-      }
-    }
-    return true;
-  }
-
-  bool Tutorial04::CreateCommandPool( uint32_t queue_family_index, VkCommandPool *pool ) {
-    VkCommandPoolCreateInfo cmd_pool_create_info = {
-      VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,       // VkStructureType                sType
-      nullptr,                                          // const void                    *pNext
-      VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | // VkCommandPoolCreateFlags       flags
-      VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-      queue_family_index                                // uint32_t                       queueFamilyIndex
-    };
-
-    if( vkCreateCommandPool( GetDevice(), &cmd_pool_create_info, nullptr, pool ) != VK_SUCCESS ) {
-      return false;
-    }
-    return true;
-  }
-
-  bool Tutorial04::AllocateCommandBuffers( VkCommandPool pool, uint32_t count, VkCommandBuffer *command_buffers ) {
-    VkCommandBufferAllocateInfo command_buffer_allocate_info = {
-      VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // VkStructureType                sType
-      nullptr,                                          // const void                    *pNext
-      pool,                                             // VkCommandPool                  commandPool
-      VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // VkCommandBufferLevel           level
-      count                                             // uint32_t                       bufferCount
-    };
-
-    if( vkAllocateCommandBuffers( GetDevice(), &command_buffer_allocate_info, command_buffers ) != VK_SUCCESS ) {
-      return false;
-    }
-    return true;
-  }
-
-  bool Tutorial04::CreateSemaphores() {
-    VkSemaphoreCreateInfo semaphore_create_info = {
-      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,      // VkStructureType          sType
-      nullptr,                                      // const void*              pNext
-      0                                             // VkSemaphoreCreateFlags   flags
-    };
-
-    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
-      if( (vkCreateSemaphore( GetDevice(), &semaphore_create_info, nullptr, &Vulkan.RenderingResources[i].ImageAvailableSemaphore ) != VK_SUCCESS) ||
-        (vkCreateSemaphore( GetDevice(), &semaphore_create_info, nullptr, &Vulkan.RenderingResources[i].FinishedRenderingSemaphore ) != VK_SUCCESS) ) {
-        std::cout << "Could not create semaphores!" << std::endl;
-        return false;
-      }
-    }
-    return true;
-  }
-
-  bool Tutorial04::CreateFences() {
-    VkFenceCreateInfo fence_create_info = {
-      VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,              // VkStructureType                sType
-      nullptr,                                          // const void                    *pNext
-      VK_FENCE_CREATE_SIGNALED_BIT                      // VkFenceCreateFlags             flags
-    };
-
-    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
-      if( vkCreateFence( GetDevice(), &fence_create_info, nullptr, &Vulkan.RenderingResources[i].Fence ) != VK_SUCCESS ) {
-        std::cout << "Could not create a fence!" << std::endl;
-        return false;
-      }
     }
     return true;
   }
@@ -500,6 +413,96 @@ namespace ApiWithoutSecrets {
       }
     }
     return false;
+  }
+
+  bool Tutorial04::CreateRenderingResources() {
+    if( !CreateCommandBuffers() ) {
+      return false;
+    }
+    if( !CreateSemaphores() ) {
+      return false;
+    }
+    if( !CreateFences() ) {
+      return false;
+    }
+    return true;
+  }
+
+  bool Tutorial04::CreateCommandBuffers() {
+    if( !CreateCommandPool( GetGraphicsQueue().FamilyIndex, &Vulkan.CommandPool ) ) {
+      std::cout << "Could not create command pool!" << std::endl;
+      return false;
+    }
+    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
+      if( !AllocateCommandBuffers( Vulkan.CommandPool, 1, &Vulkan.RenderingResources[i].CommandBuffer ) ) {
+        std::cout << "Could not allocate command buffer!" << std::endl;
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool Tutorial04::CreateCommandPool( uint32_t queue_family_index, VkCommandPool *pool ) {
+    VkCommandPoolCreateInfo cmd_pool_create_info = {
+      VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,       // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | // VkCommandPoolCreateFlags       flags
+      VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+      queue_family_index                                // uint32_t                       queueFamilyIndex
+    };
+
+    if( vkCreateCommandPool( GetDevice(), &cmd_pool_create_info, nullptr, pool ) != VK_SUCCESS ) {
+      return false;
+    }
+    return true;
+  }
+
+  bool Tutorial04::AllocateCommandBuffers( VkCommandPool pool, uint32_t count, VkCommandBuffer *command_buffers ) {
+    VkCommandBufferAllocateInfo command_buffer_allocate_info = {
+      VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      pool,                                             // VkCommandPool                  commandPool
+      VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // VkCommandBufferLevel           level
+      count                                             // uint32_t                       bufferCount
+    };
+
+    if( vkAllocateCommandBuffers( GetDevice(), &command_buffer_allocate_info, command_buffers ) != VK_SUCCESS ) {
+      return false;
+    }
+    return true;
+  }
+
+  bool Tutorial04::CreateSemaphores() {
+    VkSemaphoreCreateInfo semaphore_create_info = {
+      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,      // VkStructureType          sType
+      nullptr,                                      // const void*              pNext
+      0                                             // VkSemaphoreCreateFlags   flags
+    };
+
+    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
+      if( (vkCreateSemaphore( GetDevice(), &semaphore_create_info, nullptr, &Vulkan.RenderingResources[i].ImageAvailableSemaphore ) != VK_SUCCESS) ||
+        (vkCreateSemaphore( GetDevice(), &semaphore_create_info, nullptr, &Vulkan.RenderingResources[i].FinishedRenderingSemaphore ) != VK_SUCCESS) ) {
+        std::cout << "Could not create semaphores!" << std::endl;
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool Tutorial04::CreateFences() {
+    VkFenceCreateInfo fence_create_info = {
+      VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,              // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      VK_FENCE_CREATE_SIGNALED_BIT                      // VkFenceCreateFlags             flags
+    };
+
+    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
+      if( vkCreateFence( GetDevice(), &fence_create_info, nullptr, &Vulkan.RenderingResources[i].Fence ) != VK_SUCCESS ) {
+        std::cout << "Could not create a fence!" << std::endl;
+        return false;
+      }
+    }
+    return true;
   }
 
   bool Tutorial04::PrepareFrame( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer ) {

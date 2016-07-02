@@ -99,8 +99,8 @@ namespace ApiWithoutSecrets {
 
     bool    CreateRenderPass();
     bool    CreatePipeline();
-    bool    CreateRenderingResources();
     bool    CreateVertexBuffer();
+    bool    CreateRenderingResources();
 
     bool    Draw() override;
 
@@ -109,12 +109,12 @@ namespace ApiWithoutSecrets {
 
     Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>     CreateShaderModule( const char* filename );
     Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> CreatePipelineLayout();
+    bool                                                              AllocateBufferMemory( VkBuffer buffer, VkDeviceMemory *memory );
     bool                                                              CreateCommandPool( uint32_t queue_family_index, VkCommandPool *pool );
     bool                                                              AllocateCommandBuffers( VkCommandPool pool, uint32_t count, VkCommandBuffer *command_buffers );
     bool                                                              CreateCommandBuffers();
     bool                                                              CreateSemaphores();
     bool                                                              CreateFences();
-    bool                                                              AllocateBufferMemory( VkBuffer buffer, VkDeviceMemory *memory );
     bool                                                              PrepareFrame( VkCommandBuffer command_buffer, const ImageParameters &image_parameters, VkFramebuffer &framebuffer );
     bool                                                              CreateFramebuffer( VkFramebuffer &framebuffer, VkImageView image_view );
 
