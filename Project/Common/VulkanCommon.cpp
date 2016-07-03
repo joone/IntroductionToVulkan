@@ -171,7 +171,7 @@ namespace ApiWithoutSecrets {
       VK_MAKE_VERSION( 1, 0, 0 ),                     // uint32_t                   applicationVersion
       "Vulkan Tutorial by Intel",                     // const char                *pEngineName
       VK_MAKE_VERSION( 1, 0, 0 ),                     // uint32_t                   engineVersion
-      VK_API_VERSION                                  // uint32_t                   apiVersion
+      VK_MAKE_VERSION( 1, 0, 0 )                      // uint32_t                   apiVersion
     };
 
     VkInstanceCreateInfo instance_create_info = {
