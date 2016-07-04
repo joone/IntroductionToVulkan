@@ -17,6 +17,91 @@ namespace ApiWithoutSecrets {
     Vulkan() {
   }
 
+  bool Tutorial05::CreateRenderingResources() {
+    if( !CreateCommandPool( GetGraphicsQueue().FamilyIndex, &Vulkan.CommandPool ) ) {
+      return false;
+    }
+
+    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
+      if( !AllocateCommandBuffers( Vulkan.CommandPool, 1, &Vulkan.RenderingResources[i].CommandBuffer ) ) {
+        return false;
+      }
+
+      if( !CreateSemaphore( &Vulkan.RenderingResources[i].ImageAvailableSemaphore ) ) {
+        return false;
+      }
+
+      if( !CreateSemaphore( &Vulkan.RenderingResources[i].FinishedRenderingSemaphore ) ) {
+        return false;
+      }
+
+      if( !CreateFence( VK_FENCE_CREATE_SIGNALED_BIT, &Vulkan.RenderingResources[i].Fence ) ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool Tutorial05::CreateCommandPool( uint32_t queue_family_index, VkCommandPool *pool ) {
+    VkCommandPoolCreateInfo cmd_pool_create_info = {
+      VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,       // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | // VkCommandPoolCreateFlags       flags
+      VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+      queue_family_index                                // uint32_t                       queueFamilyIndex
+    };
+
+    if( vkCreateCommandPool( GetDevice(), &cmd_pool_create_info, nullptr, pool ) != VK_SUCCESS ) {
+      std::cout << "Could not create command pool!" << std::endl;
+      return false;
+    }
+    return true;
+  }
+
+  bool Tutorial05::AllocateCommandBuffers( VkCommandPool pool, uint32_t count, VkCommandBuffer *command_buffers ) {
+    VkCommandBufferAllocateInfo command_buffer_allocate_info = {
+      VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      pool,                                             // VkCommandPool                  commandPool
+      VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // VkCommandBufferLevel           level
+      count                                             // uint32_t                       bufferCount
+    };
+
+    if( vkAllocateCommandBuffers( GetDevice(), &command_buffer_allocate_info, command_buffers ) != VK_SUCCESS ) {
+      std::cout << "Could not allocate command buffer!" << std::endl;
+      return false;
+    }
+    return true;
+  }
+
+  bool Tutorial05::CreateSemaphore( VkSemaphore *semaphore ) {
+    VkSemaphoreCreateInfo semaphore_create_info = {
+      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,          // VkStructureType                sType
+      nullptr,                                          // const void*                    pNext
+      0                                                 // VkSemaphoreCreateFlags         flags
+    };
+
+    if( vkCreateSemaphore( GetDevice(), &semaphore_create_info, nullptr, semaphore ) != VK_SUCCESS ) {
+      std::cout << "Could not create semaphore!" << std::endl;
+      return false;
+    }
+    return true;
+  }
+
+  bool Tutorial05::CreateFence( VkFenceCreateFlags flags, VkFence *fence ) {
+    VkFenceCreateInfo fence_create_info = {
+      VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,              // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      flags                                             // VkFenceCreateFlags             flags
+    };
+
+    if( vkCreateFence( GetDevice(), &fence_create_info, nullptr, fence ) != VK_SUCCESS ) {
+      std::cout << "Could not create a fence!" << std::endl;
+      return false;
+    }
+    return true;
+  }
+
   bool Tutorial05::CreateRenderPass() {
     VkAttachmentDescription attachment_descriptions[] = {
       {
@@ -318,96 +403,6 @@ namespace ApiWithoutSecrets {
     return true;
   }
 
-  bool Tutorial05::CreateRenderingResources() {
-    if( !CreateCommandBuffers() ) {
-      return false;
-    }
-    if( !CreateSemaphores() ) {
-      return false;
-    }
-    if( !CreateFences() ) {
-      return false;
-    }
-    return true;
-  }
-
-  bool Tutorial05::CreateCommandBuffers() {
-    if( !CreateCommandPool( GetGraphicsQueue().FamilyIndex, &Vulkan.CommandPool ) ) {
-      std::cout << "Could not create command pool!" << std::endl;
-      return false;
-    }
-    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
-      if( !AllocateCommandBuffers( Vulkan.CommandPool, 1, &Vulkan.RenderingResources[i].CommandBuffer ) ) {
-        std::cout << "Could not allocate command buffer!" << std::endl;
-        return false;
-      }
-    }
-    return true;
-  }
-
-  bool Tutorial05::CreateCommandPool( uint32_t queue_family_index, VkCommandPool *pool ) {
-    VkCommandPoolCreateInfo cmd_pool_create_info = {
-      VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,       // VkStructureType                sType
-      nullptr,                                          // const void                    *pNext
-      VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | // VkCommandPoolCreateFlags       flags
-      VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-      queue_family_index                                // uint32_t                       queueFamilyIndex
-    };
-
-    if( vkCreateCommandPool( GetDevice(), &cmd_pool_create_info, nullptr, pool ) != VK_SUCCESS ) {
-      return false;
-    }
-    return true;
-  }
-
-  bool Tutorial05::AllocateCommandBuffers( VkCommandPool pool, uint32_t count, VkCommandBuffer *command_buffers ) {
-    VkCommandBufferAllocateInfo command_buffer_allocate_info = {
-      VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // VkStructureType                sType
-      nullptr,                                          // const void                    *pNext
-      pool,                                             // VkCommandPool                  commandPool
-      VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // VkCommandBufferLevel           level
-      count                                             // uint32_t                       bufferCount
-    };
-
-    if( vkAllocateCommandBuffers( GetDevice(), &command_buffer_allocate_info, command_buffers ) != VK_SUCCESS ) {
-      return false;
-    }
-    return true;
-  }
-
-  bool Tutorial05::CreateSemaphores() {
-    VkSemaphoreCreateInfo semaphore_create_info = {
-      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,          // VkStructureType                sType
-      nullptr,                                          // const void*                    pNext
-      0                                                 // VkSemaphoreCreateFlags         flags
-    };
-
-    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
-      if( (vkCreateSemaphore( GetDevice(), &semaphore_create_info, nullptr, &Vulkan.RenderingResources[i].ImageAvailableSemaphore ) != VK_SUCCESS) ||
-        (vkCreateSemaphore( GetDevice(), &semaphore_create_info, nullptr, &Vulkan.RenderingResources[i].FinishedRenderingSemaphore ) != VK_SUCCESS) ) {
-        std::cout << "Could not create semaphores!" << std::endl;
-        return false;
-      }
-    }
-    return true;
-  }
-
-  bool Tutorial05::CreateFences() {
-    VkFenceCreateInfo fence_create_info = {
-      VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,              // VkStructureType                sType
-      nullptr,                                          // const void                    *pNext
-      VK_FENCE_CREATE_SIGNALED_BIT                      // VkFenceCreateFlags             flags
-    };
-
-    for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
-      if( vkCreateFence( GetDevice(), &fence_create_info, nullptr, &Vulkan.RenderingResources[i].Fence ) != VK_SUCCESS ) {
-        std::cout << "Could not create a fence!" << std::endl;
-        return false;
-      }
-    }
-    return true;
-  }
-
   bool Tutorial05::CreateVertexBuffer() {
     const std::vector<float>& vertex_data = GetVertexData();
 
@@ -469,7 +464,7 @@ namespace ApiWithoutSecrets {
 
     for( uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i ) {
       if( (buffer_memory_requirements.memoryTypeBits & (1 << i)) &&
-        ((memory_properties.memoryTypes[i].propertyFlags & property) ==  property) ) {
+         ((memory_properties.memoryTypes[i].propertyFlags & property) == property) ) {
 
         VkMemoryAllocateInfo memory_allocate_info = {
           VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,       // VkStructureType                sType
@@ -505,7 +500,7 @@ namespace ApiWithoutSecrets {
   }
 
   bool Tutorial05::CopyVertexData() {
-    // Prepare data in staging buffer
+    // Prepare data in a staging buffer
     const std::vector<float>& vertex_data = GetVertexData();
 
     void *staging_buffer_memory_pointer;
@@ -807,6 +802,20 @@ namespace ApiWithoutSecrets {
     if( GetDevice() != VK_NULL_HANDLE ) {
       vkDeviceWaitIdle( GetDevice() );
 
+      DestroyBuffer( Vulkan.VertexBuffer );
+
+      DestroyBuffer( Vulkan.StagingBuffer );
+
+      if( Vulkan.GraphicsPipeline != VK_NULL_HANDLE ) {
+        vkDestroyPipeline( GetDevice(), Vulkan.GraphicsPipeline, nullptr );
+        Vulkan.GraphicsPipeline = VK_NULL_HANDLE;
+      }
+
+      if( Vulkan.RenderPass != VK_NULL_HANDLE ) {
+        vkDestroyRenderPass( GetDevice(), Vulkan.RenderPass, nullptr );
+        Vulkan.RenderPass = VK_NULL_HANDLE;
+      }
+
       for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
         if( Vulkan.RenderingResources[i].Framebuffer != VK_NULL_HANDLE ) {
           vkDestroyFramebuffer( GetDevice(), Vulkan.RenderingResources[i].Framebuffer, nullptr );
@@ -828,20 +837,6 @@ namespace ApiWithoutSecrets {
       if( Vulkan.CommandPool != VK_NULL_HANDLE ) {
         vkDestroyCommandPool( GetDevice(), Vulkan.CommandPool, nullptr );
         Vulkan.CommandPool = VK_NULL_HANDLE;
-      }
-
-      DestroyBuffer( Vulkan.VertexBuffer );
-
-      DestroyBuffer( Vulkan.StagingBuffer );
-
-      if( Vulkan.GraphicsPipeline != VK_NULL_HANDLE ) {
-        vkDestroyPipeline( GetDevice(), Vulkan.GraphicsPipeline, nullptr );
-        Vulkan.GraphicsPipeline = VK_NULL_HANDLE;
-      }
-
-      if( Vulkan.RenderPass != VK_NULL_HANDLE ) {
-        vkDestroyRenderPass( GetDevice(), Vulkan.RenderPass, nullptr );
-        Vulkan.RenderPass = VK_NULL_HANDLE;
       }
     }
   }

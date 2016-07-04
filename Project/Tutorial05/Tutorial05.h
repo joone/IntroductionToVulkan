@@ -99,9 +99,9 @@ namespace ApiWithoutSecrets {
     Tutorial05();
     ~Tutorial05();
 
+    bool    CreateRenderingResources();
     bool    CreateRenderPass();
     bool    CreatePipeline();
-    bool    CreateRenderingResources();
     bool    CreateVertexBuffer();
     bool    CreateStagingBuffer();
     bool    CopyVertexData();
@@ -111,13 +111,12 @@ namespace ApiWithoutSecrets {
   private:
     VulkanTutorial05Parameters  Vulkan;
 
-    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>     CreateShaderModule( const char* filename );
-    Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> CreatePipelineLayout();
     bool                                                              CreateCommandPool( uint32_t queue_family_index, VkCommandPool *pool );
     bool                                                              AllocateCommandBuffers( VkCommandPool pool, uint32_t count, VkCommandBuffer *command_buffers );
-    bool                                                              CreateCommandBuffers();
-    bool                                                              CreateSemaphores();
-    bool                                                              CreateFences();
+    bool                                                              CreateSemaphore( VkSemaphore *semaphore );
+    bool                                                              CreateFence( VkFenceCreateFlags flags, VkFence *fence );
+    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>     CreateShaderModule( const char* filename );
+    Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> CreatePipelineLayout();
     bool                                                              CreateBuffer( VkBufferUsageFlags usage, VkMemoryPropertyFlagBits memoryProperty, BufferParameters &buffer );
     bool                                                              AllocateBufferMemory( VkBuffer buffer, VkMemoryPropertyFlagBits property, VkDeviceMemory *memory );
     const std::vector<float>&                                         GetVertexData() const;

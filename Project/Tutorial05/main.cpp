@@ -25,13 +25,13 @@ int main( int argc, char **argv ) {
   }
 
   // Tutorial 05
+  if( !tutorial05.CreateRenderingResources() ) {
+    return -1;
+  }
   if( !tutorial05.CreateRenderPass() ) {
     return -1;
   }
   if( !tutorial05.CreatePipeline() ) {
-    return -1;
-  }
-  if( !tutorial05.CreateRenderingResources() ) {
     return -1;
   }
   if( !tutorial05.CreateVertexBuffer() ) {

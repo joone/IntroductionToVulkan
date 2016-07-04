@@ -474,9 +474,9 @@ namespace ApiWithoutSecrets {
 
   bool Tutorial04::CreateSemaphores() {
     VkSemaphoreCreateInfo semaphore_create_info = {
-      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,      // VkStructureType          sType
-      nullptr,                                      // const void*              pNext
-      0                                             // VkSemaphoreCreateFlags   flags
+      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,          // VkStructureType                sType
+      nullptr,                                          // const void*                    pNext
+      0                                                 // VkSemaphoreCreateFlags         flags
     };
 
     for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
