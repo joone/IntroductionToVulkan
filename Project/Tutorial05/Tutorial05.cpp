@@ -20,50 +20,71 @@ namespace ApiWithoutSecrets {
   bool Tutorial05::CreateRenderPass() {
     VkAttachmentDescription attachment_descriptions[] = {
       {
-        0,                                          // VkAttachmentDescriptionFlags   flags
-        GetSwapChain().Format,                      // VkFormat                       format
-        VK_SAMPLE_COUNT_1_BIT,                      // VkSampleCountFlagBits          samples
-        VK_ATTACHMENT_LOAD_OP_CLEAR,                // VkAttachmentLoadOp             loadOp
-        VK_ATTACHMENT_STORE_OP_STORE,               // VkAttachmentStoreOp            storeOp
-        VK_ATTACHMENT_LOAD_OP_DONT_CARE,            // VkAttachmentLoadOp             stencilLoadOp
-        VK_ATTACHMENT_STORE_OP_DONT_CARE,           // VkAttachmentStoreOp            stencilStoreOp
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,   // VkImageLayout                  initialLayout;
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL    // VkImageLayout                  finalLayout
+        0,                                              // VkAttachmentDescriptionFlags   flags
+        GetSwapChain().Format,                          // VkFormat                       format
+        VK_SAMPLE_COUNT_1_BIT,                          // VkSampleCountFlagBits          samples
+        VK_ATTACHMENT_LOAD_OP_CLEAR,                    // VkAttachmentLoadOp             loadOp
+        VK_ATTACHMENT_STORE_OP_STORE,                   // VkAttachmentStoreOp            storeOp
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE,                // VkAttachmentLoadOp             stencilLoadOp
+        VK_ATTACHMENT_STORE_OP_DONT_CARE,               // VkAttachmentStoreOp            stencilStoreOp
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                // VkImageLayout                  initialLayout;
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR                 // VkImageLayout                  finalLayout
       }
     };
 
     VkAttachmentReference color_attachment_references[] = {
       {
-        0,                                          // uint32_t                       attachment
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL    // VkImageLayout                  layout
+        0,                                              // uint32_t                       attachment
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL        // VkImageLayout                  layout
       }
     };
 
     VkSubpassDescription subpass_descriptions[] = {
       {
-        0,                                          // VkSubpassDescriptionFlags      flags
-        VK_PIPELINE_BIND_POINT_GRAPHICS,            // VkPipelineBindPoint            pipelineBindPoint
-        0,                                          // uint32_t                       inputAttachmentCount
-        nullptr,                                    // const VkAttachmentReference   *pInputAttachments
-        1,                                          // uint32_t                       colorAttachmentCount
-        color_attachment_references,                // const VkAttachmentReference   *pColorAttachments
-        nullptr,                                    // const VkAttachmentReference   *pResolveAttachments
-        nullptr,                                    // const VkAttachmentReference   *pDepthStencilAttachment
-        0,                                          // uint32_t                       preserveAttachmentCount
-        nullptr                                     // const uint32_t*                pPreserveAttachments
+        0,                                              // VkSubpassDescriptionFlags      flags
+        VK_PIPELINE_BIND_POINT_GRAPHICS,                // VkPipelineBindPoint            pipelineBindPoint
+        0,                                              // uint32_t                       inputAttachmentCount
+        nullptr,                                        // const VkAttachmentReference   *pInputAttachments
+        1,                                              // uint32_t                       colorAttachmentCount
+        color_attachment_references,                    // const VkAttachmentReference   *pColorAttachments
+        nullptr,                                        // const VkAttachmentReference   *pResolveAttachments
+        nullptr,                                        // const VkAttachmentReference   *pDepthStencilAttachment
+        0,                                              // uint32_t                       preserveAttachmentCount
+        nullptr                                         // const uint32_t*                pPreserveAttachments
+      }
+    };
+
+    std::vector<VkSubpassDependency> dependencies = {
+      {
+        VK_SUBPASS_EXTERNAL,                            // uint32_t                       srcSubpass
+        0,                                              // uint32_t                       dstSubpass
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,           // VkPipelineStageFlags           srcStageMask
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,  // VkPipelineStageFlags           dstStageMask
+        VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                  srcAccessMask
+        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,           // VkAccessFlags                  dstAccessMask
+        VK_DEPENDENCY_BY_REGION_BIT                     // VkDependencyFlags              dependencyFlags
+      },
+      {
+        0,                                              // uint32_t                       srcSubpass
+        VK_SUBPASS_EXTERNAL,                            // uint32_t                       dstSubpass
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,  // VkPipelineStageFlags           srcStageMask
+        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,           // VkPipelineStageFlags           dstStageMask
+        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,           // VkAccessFlags                  srcAccessMask
+        VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                  dstAccessMask
+        VK_DEPENDENCY_BY_REGION_BIT                     // VkDependencyFlags              dependencyFlags
       }
     };
 
     VkRenderPassCreateInfo render_pass_create_info = {
-      VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,    // VkStructureType                sType
-      nullptr,                                      // const void                    *pNext
-      0,                                            // VkRenderPassCreateFlags        flags
-      1,                                            // uint32_t                       attachmentCount
-      attachment_descriptions,                      // const VkAttachmentDescription *pAttachments
-      1,                                            // uint32_t                       subpassCount
-      subpass_descriptions,                         // const VkSubpassDescription    *pSubpasses
-      0,                                            // uint32_t                       dependencyCount
-      nullptr                                       // const VkSubpassDependency     *pDependencies
+      VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,        // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      0,                                                // VkRenderPassCreateFlags        flags
+      1,                                                // uint32_t                       attachmentCount
+      attachment_descriptions,                          // const VkAttachmentDescription *pAttachments
+      1,                                                // uint32_t                       subpassCount
+      subpass_descriptions,                             // const VkSubpassDescription    *pSubpasses
+      static_cast<uint32_t>(dependencies.size()),       // uint32_t                       dependencyCount
+      &dependencies[0]                                  // const VkSubpassDependency     *pDependencies
     };
 
     if( vkCreateRenderPass( GetDevice(), &render_pass_create_info, nullptr, &Vulkan.RenderPass ) != VK_SUCCESS ) {
@@ -81,11 +102,11 @@ namespace ApiWithoutSecrets {
     }
 
     VkShaderModuleCreateInfo shader_module_create_info = {
-      VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,    // VkStructureType                sType
-      nullptr,                                        // const void                    *pNext
-      0,                                              // VkShaderModuleCreateFlags      flags
-      code.size(),                                    // size_t                         codeSize
-      reinterpret_cast<const uint32_t*>(&code[0])     // const uint32_t                *pCode
+      VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,      // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      0,                                                // VkShaderModuleCreateFlags      flags
+      code.size(),                                      // size_t                         codeSize
+      reinterpret_cast<const uint32_t*>(&code[0])       // const uint32_t                *pCode
     };
 
     VkShaderModule shader_module;
@@ -99,13 +120,13 @@ namespace ApiWithoutSecrets {
 
   Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> Tutorial05::CreatePipelineLayout() {
     VkPipelineLayoutCreateInfo layout_create_info = {
-      VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,  // VkStructureType                sType
-      nullptr,                                        // const void                    *pNext
-      0,                                              // VkPipelineLayoutCreateFlags    flags
-      0,                                              // uint32_t                       setLayoutCount
-      nullptr,                                        // const VkDescriptorSetLayout   *pSetLayouts
-      0,                                              // uint32_t                       pushConstantRangeCount
-      nullptr                                         // const VkPushConstantRange     *pPushConstantRanges
+      VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,    // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      0,                                                // VkPipelineLayoutCreateFlags    flags
+      0,                                                // uint32_t                       setLayoutCount
+      nullptr,                                          // const VkDescriptorSetLayout   *pSetLayouts
+      0,                                                // uint32_t                       pushConstantRangeCount
+      nullptr                                           // const VkPushConstantRange     *pPushConstantRanges
     };
 
     VkPipelineLayout pipeline_layout;
@@ -148,35 +169,37 @@ namespace ApiWithoutSecrets {
       }
     };
 
-    VkVertexInputBindingDescription vertex_binding_description = {
-      0,                                                            // uint32_t                                       binding
-      sizeof(VertexData),                                           // uint32_t                                       stride
-      VK_VERTEX_INPUT_RATE_VERTEX                                   // VkVertexInputRate                              inputRate
+    std::vector<VkVertexInputBindingDescription> vertex_binding_descriptions = {
+      {
+        0,                                                          // uint32_t                                       binding
+        sizeof(VertexData),                                         // uint32_t                                       stride
+        VK_VERTEX_INPUT_RATE_VERTEX                                 // VkVertexInputRate                              inputRate
+      }
     };
 
-    VkVertexInputAttributeDescription vertex_attribute_descriptions[] = {
+    std::vector<VkVertexInputAttributeDescription> vertex_attribute_descriptions = {
       {
         0,                                                          // uint32_t                                       location
-        vertex_binding_description.binding,                         // uint32_t                                       binding
+        vertex_binding_descriptions[0].binding,                     // uint32_t                                       binding
         VK_FORMAT_R32G32B32A32_SFLOAT,                              // VkFormat                                       format
-        0                                                           // uint32_t                                       offset
+        offsetof(struct VertexData, x)                              // uint32_t                                       offset
       },
       {
         1,                                                          // uint32_t                                       location
-        vertex_binding_description.binding,                         // uint32_t                                       binding
+        vertex_binding_descriptions[0].binding,                     // uint32_t                                       binding
         VK_FORMAT_R32G32B32A32_SFLOAT,                              // VkFormat                                       format
-        4 * sizeof(float)                                           // uint32_t                                       offset
+        offsetof(struct VertexData, r)                              // uint32_t                                       offset
       }
     };
 
     VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,    // VkStructureType                                sType
       nullptr,                                                      // const void                                    *pNext
-      0,                                                            // VkPipelineVertexInputStateCreateFlags          flags;
-      1,                                                            // uint32_t                                       vertexBindingDescriptionCount
-      &vertex_binding_description,                                  // const VkVertexInputBindingDescription         *pVertexBindingDescriptions
-      2,                                                            // uint32_t                                       vertexAttributeDescriptionCount
-      vertex_attribute_descriptions                                 // const VkVertexInputAttributeDescription       *pVertexAttributeDescriptions
+      0,                                                            // VkPipelineVertexInputStateCreateFlags          flags
+      static_cast<uint32_t>(vertex_binding_descriptions.size()),    // uint32_t                                       vertexBindingDescriptionCount
+      &vertex_binding_descriptions[0],                              // const VkVertexInputBindingDescription         *pVertexBindingDescriptions
+      static_cast<uint32_t>(vertex_attribute_descriptions.size()),  // uint32_t                                       vertexAttributeDescriptionCount
+      &vertex_attribute_descriptions[0]                             // const VkVertexInputAttributeDescription       *pVertexAttributeDescriptions
     };
 
     VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info = {
@@ -248,7 +271,7 @@ namespace ApiWithoutSecrets {
       { 0.0f, 0.0f, 0.0f, 0.0f }                                    // float                                          blendConstants[4]
     };
 
-    VkDynamicState dynamic_states[] = {
+    std::vector<VkDynamicState> dynamic_states = {
       VK_DYNAMIC_STATE_VIEWPORT,
       VK_DYNAMIC_STATE_SCISSOR,
     };
@@ -257,8 +280,8 @@ namespace ApiWithoutSecrets {
       VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,         // VkStructureType                                sType
       nullptr,                                                      // const void                                    *pNext
       0,                                                            // VkPipelineDynamicStateCreateFlags              flags
-      2,                                                            // uint32_t                                       dynamicStateCount
-      dynamic_states                                                // const VkDynamicState                          *pDynamicStates
+      static_cast<uint32_t>(dynamic_states.size()),                 // uint32_t                                       dynamicStateCount
+      &dynamic_states[0]                                            // const VkDynamicState                          *pDynamicStates
     };
 
     Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> pipeline_layout = CreatePipelineLayout();
@@ -354,9 +377,9 @@ namespace ApiWithoutSecrets {
 
   bool Tutorial05::CreateSemaphores() {
     VkSemaphoreCreateInfo semaphore_create_info = {
-      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,      // VkStructureType          sType
-      nullptr,                                      // const void*              pNext
-      0                                             // VkSemaphoreCreateFlags   flags
+      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,          // VkStructureType                sType
+      nullptr,                                          // const void*                    pNext
+      0                                                 // VkSemaphoreCreateFlags         flags
     };
 
     for( size_t i = 0; i < Vulkan.RenderingResources.size(); ++i ) {
@@ -409,14 +432,14 @@ namespace ApiWithoutSecrets {
 
   bool Tutorial05::CreateBuffer( VkBufferUsageFlags usage, VkMemoryPropertyFlagBits memoryProperty, BufferParameters &buffer ) {
     VkBufferCreateInfo buffer_create_info = {
-      VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,             // VkStructureType        sType
-      nullptr,                                          // const void            *pNext
-      0,                                                // VkBufferCreateFlags    flags
-      buffer.Size,                                      // VkDeviceSize           size
-      usage,                                            // VkBufferUsageFlags     usage
-      VK_SHARING_MODE_EXCLUSIVE,                        // VkSharingMode          sharingMode
-      0,                                                // uint32_t               queueFamilyIndexCount
-      nullptr                                           // const uint32_t        *pQueueFamilyIndices
+      VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,             // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      0,                                                // VkBufferCreateFlags            flags
+      buffer.Size,                                      // VkDeviceSize                   size
+      usage,                                            // VkBufferUsageFlags             usage
+      VK_SHARING_MODE_EXCLUSIVE,                        // VkSharingMode                  sharingMode
+      0,                                                // uint32_t                       queueFamilyIndexCount
+      nullptr                                           // const uint32_t                *pQueueFamilyIndices
     };
 
     if( vkCreateBuffer( GetDevice(), &buffer_create_info, nullptr, &buffer.Handle ) != VK_SUCCESS ) {
@@ -446,13 +469,13 @@ namespace ApiWithoutSecrets {
 
     for( uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i ) {
       if( (buffer_memory_requirements.memoryTypeBits & (1 << i)) &&
-        (memory_properties.memoryTypes[i].propertyFlags & property) ) {
+        ((memory_properties.memoryTypes[i].propertyFlags & property) ==  property) ) {
 
         VkMemoryAllocateInfo memory_allocate_info = {
-          VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,     // VkStructureType                        sType
-          nullptr,                                    // const void                            *pNext
-          buffer_memory_requirements.size,            // VkDeviceSize                           allocationSize
-          i                                           // uint32_t                               memoryTypeIndex
+          VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,       // VkStructureType                sType
+          nullptr,                                      // const void                    *pNext
+          buffer_memory_requirements.size,              // VkDeviceSize                   allocationSize
+          i                                             // uint32_t                       memoryTypeIndex
         };
 
         if( vkAllocateMemory( GetDevice(), &memory_allocate_info, nullptr, memory ) == VK_SUCCESS ) {
@@ -494,11 +517,11 @@ namespace ApiWithoutSecrets {
     memcpy( staging_buffer_memory_pointer, &vertex_data[0], Vulkan.VertexBuffer.Size );
 
     VkMappedMemoryRange flush_range = {
-      VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,              // VkStructureType                        sType
-      nullptr,                                            // const void                            *pNext
-      Vulkan.StagingBuffer.Memory,                        // VkDeviceMemory                         memory
-      0,                                                  // VkDeviceSize                           offset
-      Vulkan.VertexBuffer.Size                            // VkDeviceSize                           size
+      VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,            // VkStructureType                        sType
+      nullptr,                                          // const void                            *pNext
+      Vulkan.StagingBuffer.Memory,                      // VkDeviceMemory                         memory
+      0,                                                // VkDeviceSize                           offset
+      Vulkan.VertexBuffer.Size                          // VkDeviceSize                           size
     };
     vkFlushMappedMemoryRanges( GetDevice(), 1, &flush_range );
 
@@ -506,10 +529,10 @@ namespace ApiWithoutSecrets {
 
     // Prepare command buffer to copy data from staging buffer to a vertex buffer
     VkCommandBufferBeginInfo command_buffer_begin_info = {
-      VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,        // VkStructureType                        sType
-      nullptr,                                            // const void                            *pNext
-      VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,        // VkCommandBufferUsageFlags              flags
-      nullptr                                             // const VkCommandBufferInheritanceInfo  *pInheritanceInfo
+      VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,      // VkStructureType                        sType
+      nullptr,                                          // const void                            *pNext
+      VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,      // VkCommandBufferUsageFlags              flags
+      nullptr                                           // const VkCommandBufferInheritanceInfo  *pInheritanceInfo
     };
 
     VkCommandBuffer command_buffer = Vulkan.RenderingResources[0].CommandBuffer;
@@ -517,22 +540,22 @@ namespace ApiWithoutSecrets {
     vkBeginCommandBuffer( command_buffer, &command_buffer_begin_info);
 
     VkBufferCopy buffer_copy_info = {
-      0,                                                  // VkDeviceSize                           srcOffset
-      0,                                                  // VkDeviceSize                           dstOffset
-      Vulkan.VertexBuffer.Size                            // VkDeviceSize                           size
+      0,                                                // VkDeviceSize                           srcOffset
+      0,                                                // VkDeviceSize                           dstOffset
+      Vulkan.VertexBuffer.Size                          // VkDeviceSize                           size
     };
     vkCmdCopyBuffer( command_buffer, Vulkan.StagingBuffer.Handle, Vulkan.VertexBuffer.Handle, 1, &buffer_copy_info );
 
     VkBufferMemoryBarrier buffer_memory_barrier = {
-      VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,            // VkStructureType                        sType;
-      nullptr,                                            // const void                            *pNext
-      VK_ACCESS_MEMORY_WRITE_BIT,                         // VkAccessFlags                          srcAccessMask
-      VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,                // VkAccessFlags                          dstAccessMask
-      VK_QUEUE_FAMILY_IGNORED,                            // uint32_t                               srcQueueFamilyIndex
-      VK_QUEUE_FAMILY_IGNORED,                            // uint32_t                               dstQueueFamilyIndex
-      Vulkan.VertexBuffer.Handle,                         // VkBuffer                               buffer
-      0,                                                  // VkDeviceSize                           offset
-      VK_WHOLE_SIZE                                       // VkDeviceSize                           size
+      VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,          // VkStructureType                        sType;
+      nullptr,                                          // const void                            *pNext
+      VK_ACCESS_MEMORY_WRITE_BIT,                       // VkAccessFlags                          srcAccessMask
+      VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,              // VkAccessFlags                          dstAccessMask
+      VK_QUEUE_FAMILY_IGNORED,                          // uint32_t                               srcQueueFamilyIndex
+      VK_QUEUE_FAMILY_IGNORED,                          // uint32_t                               dstQueueFamilyIndex
+      Vulkan.VertexBuffer.Handle,                       // VkBuffer                               buffer
+      0,                                                // VkDeviceSize                           offset
+      VK_WHOLE_SIZE                                     // VkDeviceSize                           size
     };
     vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &buffer_memory_barrier, 0, nullptr );
 
@@ -540,15 +563,15 @@ namespace ApiWithoutSecrets {
 
     // Submit command buffer and copy data from staging buffer to a vertex buffer
     VkSubmitInfo submit_info = {
-      VK_STRUCTURE_TYPE_SUBMIT_INFO,                      // VkStructureType                        sType
-      nullptr,                                            // const void                            *pNext
-      0,                                                  // uint32_t                               waitSemaphoreCount
-      nullptr,                                            // const VkSemaphore                     *pWaitSemaphores
-      nullptr,                                            // const VkPipelineStageFlags            *pWaitDstStageMask;
-      1,                                                  // uint32_t                               commandBufferCount
-      &command_buffer,                                    // const VkCommandBuffer                 *pCommandBuffers
-      0,                                                  // uint32_t                               signalSemaphoreCount
-      nullptr                                             // const VkSemaphore                     *pSignalSemaphores
+      VK_STRUCTURE_TYPE_SUBMIT_INFO,                    // VkStructureType                        sType
+      nullptr,                                          // const void                            *pNext
+      0,                                                // uint32_t                               waitSemaphoreCount
+      nullptr,                                          // const VkSemaphore                     *pWaitSemaphores
+      nullptr,                                          // const VkPipelineStageFlags            *pWaitDstStageMask;
+      1,                                                // uint32_t                               commandBufferCount
+      &command_buffer,                                  // const VkCommandBuffer                 *pCommandBuffers
+      0,                                                // uint32_t                               signalSemaphoreCount
+      nullptr                                           // const VkSemaphore                     *pSignalSemaphores
     };
 
     if( vkQueueSubmit( GetGraphicsQueue().Handle, 1, &submit_info, VK_NULL_HANDLE ) != VK_SUCCESS ) {
@@ -566,56 +589,56 @@ namespace ApiWithoutSecrets {
     }
 
     VkCommandBufferBeginInfo command_buffer_begin_info = {
-      VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,        // VkStructureType                        sType
-      nullptr,                                            // const void                            *pNext
-      VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,        // VkCommandBufferUsageFlags              flags
-      nullptr                                             // const VkCommandBufferInheritanceInfo  *pInheritanceInfo
+      VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,      // VkStructureType                        sType
+      nullptr,                                          // const void                            *pNext
+      VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,      // VkCommandBufferUsageFlags              flags
+      nullptr                                           // const VkCommandBufferInheritanceInfo  *pInheritanceInfo
     };
 
     vkBeginCommandBuffer( command_buffer, &command_buffer_begin_info );
 
     VkImageSubresourceRange image_subresource_range = {
-      VK_IMAGE_ASPECT_COLOR_BIT,                          // VkImageAspectFlags                     aspectMask
-      0,                                                  // uint32_t                               baseMipLevel
-      1,                                                  // uint32_t                               levelCount
-      0,                                                  // uint32_t                               baseArrayLayer
-      1                                                   // uint32_t                               layerCount
+      VK_IMAGE_ASPECT_COLOR_BIT,                        // VkImageAspectFlags                     aspectMask
+      0,                                                // uint32_t                               baseMipLevel
+      1,                                                // uint32_t                               levelCount
+      0,                                                // uint32_t                               baseArrayLayer
+      1                                                 // uint32_t                               layerCount
     };
 
-    uint32_t present_queue_family_index = (GetPresentQueue().Handle != GetGraphicsQueue().Handle) ? GetPresentQueue().FamilyIndex : VK_QUEUE_FAMILY_IGNORED;
-    uint32_t graphics_queue_family_index = (GetPresentQueue().Handle != GetGraphicsQueue().Handle) ? GetGraphicsQueue().FamilyIndex : VK_QUEUE_FAMILY_IGNORED;
-    VkImageMemoryBarrier barrier_from_present_to_draw = {
-      VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,             // VkStructureType                        sType
-      nullptr,                                            // const void                            *pNext
-      VK_ACCESS_MEMORY_READ_BIT,                          // VkAccessFlags                          srcAccessMask
-      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,               // VkAccessFlags                          dstAccessMask
-      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                    // VkImageLayout                          oldLayout
-      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,           // VkImageLayout                          newLayout
-      present_queue_family_index,                         // uint32_t                               srcQueueFamilyIndex
-      graphics_queue_family_index,                        // uint32_t                               dstQueueFamilyIndex
-      image_parameters.Handle,                            // VkImage                                image
-      image_subresource_range                             // VkImageSubresourceRange                subresourceRange
-    };
-    vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_present_to_draw );
+    if( GetPresentQueue().Handle != GetGraphicsQueue().Handle ) {
+      VkImageMemoryBarrier barrier_from_present_to_draw = {
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,         // VkStructureType                        sType
+        nullptr,                                        // const void                            *pNext
+        VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                          srcAccessMask
+        VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                          dstAccessMask
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                // VkImageLayout                          oldLayout
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                // VkImageLayout                          newLayout
+        GetPresentQueue().FamilyIndex,                  // uint32_t                               srcQueueFamilyIndex
+        GetGraphicsQueue().FamilyIndex,                 // uint32_t                               dstQueueFamilyIndex
+        image_parameters.Handle,                        // VkImage                                image
+        image_subresource_range                         // VkImageSubresourceRange                subresourceRange
+      };
+      vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_present_to_draw );
+    }
 
     VkClearValue clear_value = {
-      { 1.0f, 0.8f, 0.4f, 0.0f },                         // VkClearColorValue                      color
+      { 1.0f, 0.8f, 0.4f, 0.0f },                       // VkClearColorValue                      color
     };
 
     VkRenderPassBeginInfo render_pass_begin_info = {
-      VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,           // VkStructureType                        sType
-      nullptr,                                            // const void                            *pNext
-      Vulkan.RenderPass,                                  // VkRenderPass                           renderPass
-      framebuffer,                                        // VkFramebuffer                          framebuffer
-      {                                                   // VkRect2D                               renderArea
-        {                                                 // VkOffset2D                             offset
-          0,                                                // int32_t                                x
-          0                                                 // int32_t                                y
+      VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,         // VkStructureType                        sType
+      nullptr,                                          // const void                            *pNext
+      Vulkan.RenderPass,                                // VkRenderPass                           renderPass
+      framebuffer,                                      // VkFramebuffer                          framebuffer
+      {                                                 // VkRect2D                               renderArea
+        {                                               // VkOffset2D                             offset
+          0,                                              // int32_t                                x
+          0                                               // int32_t                                y
         },
-        GetSwapChain().Extent,                            // VkExtent2D                             extent;
+        GetSwapChain().Extent,                          // VkExtent2D                             extent;
       },
-      1,                                                  // uint32_t                               clearValueCount
-      &clear_value                                        // const VkClearValue                    *pClearValues
+      1,                                                // uint32_t                               clearValueCount
+      &clear_value                                      // const VkClearValue                    *pClearValues
     };
 
     vkCmdBeginRenderPass( command_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE );
@@ -623,22 +646,22 @@ namespace ApiWithoutSecrets {
     vkCmdBindPipeline( command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, Vulkan.GraphicsPipeline );
 
     VkViewport viewport = {
-      0.0f,                                               // float                                  x
-      0.0f,                                               // float                                  y
-      static_cast<float>(GetSwapChain().Extent.width),    // float                                  width
-      static_cast<float>(GetSwapChain().Extent.height),   // float                                  height
-      0.0f,                                               // float                                  minDepth
-      1.0f                                                // float                                  maxDepth
+      0.0f,                                             // float                                  x
+      0.0f,                                             // float                                  y
+      static_cast<float>(GetSwapChain().Extent.width),  // float                                  width
+      static_cast<float>(GetSwapChain().Extent.height), // float                                  height
+      0.0f,                                             // float                                  minDepth
+      1.0f                                              // float                                  maxDepth
     };
 
     VkRect2D scissor = {
-      {                                                   // VkOffset2D                             offset
-        0,                                                  // int32_t                                x
-        0                                                   // int32_t                                y
+      {                                                 // VkOffset2D                             offset
+        0,                                                // int32_t                                x
+        0                                                 // int32_t                                y
       },
-      {                                                   // VkExtent2D                             extent
-        GetSwapChain().Extent.width,                        // uint32_t                               width
-        GetSwapChain().Extent.height                        // uint32_t                               height
+      {                                                 // VkExtent2D                             extent
+        GetSwapChain().Extent.width,                      // uint32_t                               width
+        GetSwapChain().Extent.height                      // uint32_t                               height
       }
     };
 
@@ -652,19 +675,21 @@ namespace ApiWithoutSecrets {
 
     vkCmdEndRenderPass( command_buffer );
 
-    VkImageMemoryBarrier barrier_from_draw_to_present = {
-      VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,             // VkStructureType                        sType
-      nullptr,                                            // const void                            *pNext
-      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,               // VkAccessFlags                          srcAccessMask
-      VK_ACCESS_MEMORY_READ_BIT,                          // VkAccessFlags                          dstAccessMask
-      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,           // VkImageLayout                          oldLayout
-      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                    // VkImageLayout                          newLayout
-      graphics_queue_family_index,                        // uint32_t                               srcQueueFamilyIndex
-      present_queue_family_index,                         // uint32_t                               dstQueueFamilyIndex
-      image_parameters.Handle,                            // VkImage                                image
-      image_subresource_range                             // VkImageSubresourceRange                subresourceRange
-    };
-    vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_draw_to_present );
+    if( GetGraphicsQueue().Handle != GetPresentQueue().Handle ) {
+      VkImageMemoryBarrier barrier_from_draw_to_present = {
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,         // VkStructureType                        sType
+        nullptr,                                        // const void                            *pNext
+        VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                          srcAccessMask
+        VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                          dstAccessMask
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                // VkImageLayout                          oldLayout
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                // VkImageLayout                          newLayout
+        GetGraphicsQueue().FamilyIndex,                 // uint32_t                               srcQueueFamilyIndex
+        GetPresentQueue().FamilyIndex,                  // uint32_t                               dstQueueFamilyIndex
+        image_parameters.Handle,                        // VkImage                                image
+        image_subresource_range                         // VkImageSubresourceRange                subresourceRange
+      };
+      vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_draw_to_present );
+    }
 
     if( vkEndCommandBuffer( command_buffer ) != VK_SUCCESS ) {
       std::cout << "Could not record command buffer!" << std::endl;
@@ -679,15 +704,15 @@ namespace ApiWithoutSecrets {
     }
 
     VkFramebufferCreateInfo framebuffer_create_info = {
-      VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,      // VkStructureType                sType
-      nullptr,                                        // const void                    *pNext
-      0,                                              // VkFramebufferCreateFlags       flags
-      Vulkan.RenderPass,                              // VkRenderPass                   renderPass
-      1,                                              // uint32_t                       attachmentCount
-      &image_view,                                    // const VkImageView             *pAttachments
-      GetSwapChain().Extent.width,                    // uint32_t                       width
-      GetSwapChain().Extent.height,                   // uint32_t                       height
-      1                                               // uint32_t                       layers
+      VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,        // VkStructureType                sType
+      nullptr,                                          // const void                    *pNext
+      0,                                                // VkFramebufferCreateFlags       flags
+      Vulkan.RenderPass,                                // VkRenderPass                   renderPass
+      1,                                                // uint32_t                       attachmentCount
+      &image_view,                                      // const VkImageView             *pAttachments
+      GetSwapChain().Extent.width,                      // uint32_t                       width
+      GetSwapChain().Extent.height,                     // uint32_t                       height
+      1                                                 // uint32_t                       layers
     };
 
     if( vkCreateFramebuffer( GetDevice(), &framebuffer_create_info, nullptr, &framebuffer ) != VK_SUCCESS ) {
