@@ -223,7 +223,7 @@ namespace ApiWithoutSecrets {
       VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,    // VkStructureType                  sType
       nullptr,                                          // const void                      *pNext
       0,                                                // VkXcbSurfaceCreateFlagsKHR       flags
-      Window.Connection,                                // xcb_connection_t*                connection
+      Window.Connection,                                // xcb_connection_t                *connection
       Window.Handle                                     // xcb_window_t                     window
     };
 

@@ -47,6 +47,7 @@ Here I present render pass, framebuffer and pipeline objects which are necessary
 <img src="./Document/Images/04 - Vertex Attributes.png" height="96px" align="right">
 
 #### Buffers, memory objects and fences
+##### https://software.intel.com/en-us/api-without-secrets-introduction-to-vulkan-part-4
 
 This tutorial shows how to set up vertex attributes and bind buffer with a vertex data. Here we also create memory object (which is used by buffer) and fences.
 
