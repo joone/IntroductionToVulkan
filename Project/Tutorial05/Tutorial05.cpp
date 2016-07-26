@@ -542,7 +542,7 @@ namespace ApiWithoutSecrets {
     vkCmdCopyBuffer( command_buffer, Vulkan.StagingBuffer.Handle, Vulkan.VertexBuffer.Handle, 1, &buffer_copy_info );
 
     VkBufferMemoryBarrier buffer_memory_barrier = {
-      VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,          // VkStructureType                        sType;
+      VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,          // VkStructureType                        sType
       nullptr,                                          // const void                            *pNext
       VK_ACCESS_MEMORY_WRITE_BIT,                       // VkAccessFlags                          srcAccessMask
       VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,              // VkAccessFlags                          dstAccessMask
@@ -696,6 +696,7 @@ namespace ApiWithoutSecrets {
   bool Tutorial05::CreateFramebuffer( VkFramebuffer &framebuffer, VkImageView image_view ) {
     if( framebuffer != VK_NULL_HANDLE ) {
       vkDestroyFramebuffer( GetDevice(), framebuffer, nullptr );
+      framebuffer = VK_NULL_HANDLE;
     }
 
     VkFramebufferCreateInfo framebuffer_create_info = {

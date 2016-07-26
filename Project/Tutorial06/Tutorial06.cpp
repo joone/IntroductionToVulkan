@@ -1026,6 +1026,7 @@ namespace ApiWithoutSecrets {
   bool Tutorial06::CreateFramebuffer( VkFramebuffer &framebuffer, VkImageView image_view ) {
     if( framebuffer != VK_NULL_HANDLE ) {
       vkDestroyFramebuffer( GetDevice(), framebuffer, nullptr );
+      framebuffer = VK_NULL_HANDLE;
     }
 
     VkFramebufferCreateInfo framebuffer_create_info = {
