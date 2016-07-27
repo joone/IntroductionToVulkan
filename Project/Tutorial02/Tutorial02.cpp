@@ -59,7 +59,7 @@ namespace ApiWithoutSecrets {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     VulkanLibrary = LoadLibrary( "vulkan-1.dll" );
 #elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-    VulkanLibrary = dlopen( "libvulkan.so", RTLD_NOW );
+    VulkanLibrary = dlopen( "libvulkan.so.1", RTLD_NOW );
 #endif
 
     if( VulkanLibrary == nullptr ) {
