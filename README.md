@@ -57,6 +57,7 @@ This tutorial shows how to set up vertex attributes and bind buffer with a verte
 <img src="./Document/Images/05 - Staging Resources.png" height="96px" align="right">
 
 #### Copying data between buffers
+##### https://software.intel.com/en-us/articles/api-without-secrets-introduction-to-vulkan-part-5
 
 In this example staging resources are presented. They are used as an intermediate resources for copying data between CPU and GPU. This way, resources involved in rendering can be bound only to a device local (very fast) memory.
 
