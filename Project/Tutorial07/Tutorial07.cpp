@@ -1072,7 +1072,7 @@ namespace ApiWithoutSecrets {
       nullptr,                                            // const void                            *pNext
       VK_ACCESS_MEMORY_READ_BIT,                          // VkAccessFlags                          srcAccessMask
       VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,               // VkAccessFlags                          dstAccessMask
-      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                    // VkImageLayout                          oldLayout
+      VK_IMAGE_LAYOUT_UNDEFINED,                          // VkImageLayout                          oldLayout
       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,           // VkImageLayout                          newLayout
       present_queue_family_index,                         // uint32_t                               srcQueueFamilyIndex
       graphics_queue_family_index,                        // uint32_t                               dstQueueFamilyIndex

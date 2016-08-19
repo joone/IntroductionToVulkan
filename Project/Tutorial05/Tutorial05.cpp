@@ -112,7 +112,7 @@ namespace ApiWithoutSecrets {
         VK_ATTACHMENT_STORE_OP_STORE,                   // VkAttachmentStoreOp            storeOp
         VK_ATTACHMENT_LOAD_OP_DONT_CARE,                // VkAttachmentLoadOp             stencilLoadOp
         VK_ATTACHMENT_STORE_OP_DONT_CARE,               // VkAttachmentStoreOp            stencilStoreOp
-        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                // VkImageLayout                  initialLayout;
+        VK_IMAGE_LAYOUT_UNDEFINED,                      // VkImageLayout                  initialLayout;
         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR                 // VkImageLayout                  finalLayout
       }
     };
@@ -606,7 +606,7 @@ namespace ApiWithoutSecrets {
         nullptr,                                        // const void                            *pNext
         VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                          srcAccessMask
         VK_ACCESS_MEMORY_READ_BIT,                      // VkAccessFlags                          dstAccessMask
-        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                // VkImageLayout                          oldLayout
+        VK_IMAGE_LAYOUT_UNDEFINED,                      // VkImageLayout                          oldLayout
         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                // VkImageLayout                          newLayout
         GetPresentQueue().FamilyIndex,                  // uint32_t                               srcQueueFamilyIndex
         GetGraphicsQueue().FamilyIndex,                 // uint32_t                               dstQueueFamilyIndex
