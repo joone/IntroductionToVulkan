@@ -493,7 +493,7 @@ namespace ApiWithoutSecrets {
     VkBufferCopy buffer_copy_info = {
       0,                                                  // VkDeviceSize                           srcOffset
       0,                                                  // VkDeviceSize                           dstOffset
-      Vulkan.VertexBuffer.Size                            // VkDeviceSize                           size
+      Vulkan.UniformBuffer.Size                           // VkDeviceSize                           size
     };
     vkCmdCopyBuffer( command_buffer, Vulkan.StagingBuffer.Handle, Vulkan.UniformBuffer.Handle, 1, &buffer_copy_info );
 
