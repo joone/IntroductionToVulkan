@@ -182,6 +182,8 @@ namespace ApiWithoutSecrets {
         XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK,
         value_list );
 
+      xcb_flush( Parameters.Connection );
+
       xcb_change_property(
         Parameters.Connection,
         XCB_PROP_MODE_REPLACE,
@@ -295,6 +297,7 @@ namespace ApiWithoutSecrets {
         BlackPixel( Parameters.DisplayPtr, default_screen ),
         WhitePixel( Parameters.DisplayPtr, default_screen ) );
 
+      // XSync( Parameters.DisplayPtr, false );
       XSetStandardProperties( Parameters.DisplayPtr, Parameters.Handle, title, title, None, nullptr, 0, nullptr );
       XSelectInput( Parameters.DisplayPtr, Parameters.Handle, ExposureMask | KeyPressMask | StructureNotifyMask );
 
