@@ -242,7 +242,7 @@ namespace ApiWithoutSecrets {
 
   bool Tutorial07::AllocateImageMemory( VkImage image, VkMemoryPropertyFlagBits property, VkDeviceMemory *memory ) {
     VkMemoryRequirements image_memory_requirements;
-    vkGetImageMemoryRequirements( GetDevice(), Vulkan.Image.Handle, &image_memory_requirements );
+    vkGetImageMemoryRequirements( GetDevice(), image, &image_memory_requirements );
 
     VkPhysicalDeviceMemoryProperties memory_properties;
     vkGetPhysicalDeviceMemoryProperties( GetPhysicalDevice(), &memory_properties );
