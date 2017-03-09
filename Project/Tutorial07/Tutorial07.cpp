@@ -175,7 +175,7 @@ namespace ApiWithoutSecrets {
 
   bool Tutorial07::CreateTexture() {
     int width = 0, height = 0, data_size = 0;
-    std::vector<char> texture_data = Tools::GetImageData( "Data06/texture.png", 4, &width, &height, nullptr, &data_size );
+    std::vector<char> texture_data = Tools::GetImageData( "Data07/texture.png", 4, &width, &height, nullptr, &data_size );
     if( texture_data.size() == 0 ) {
       return false;
     }
