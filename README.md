@@ -67,6 +67,7 @@ In this example staging resources are presented. They are used as an intermediat
 <img src="./Document/Images/06 - Descriptor Sets.png" height="96px" align="right">
 
 #### Using textures in shaders
+##### https://software.intel.com/en-us/articles/api-without-secrets-introduction-to-vulkan-part-6
 
 This tutorial shows what resources are needed and how they should be prepared to be able to use textures (or other shader resources) in shader programs.
 
