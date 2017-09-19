@@ -275,6 +275,7 @@ namespace ApiWithoutSecrets {
     for( uint32_t i = 0; i < num_devices; ++i ) {
       if( CheckPhysicalDeviceProperties( physical_devices[i], selected_graphics_queue_family_index, selected_present_queue_family_index ) ) {
         Vulkan.PhysicalDevice = physical_devices[i];
+        break;
       }
     }
     if( Vulkan.PhysicalDevice == VK_NULL_HANDLE ) {

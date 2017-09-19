@@ -165,6 +165,7 @@ namespace ApiWithoutSecrets {
     for( uint32_t i = 0; i < num_devices; ++i ) {
       if( CheckPhysicalDeviceProperties( physical_devices[i], selected_queue_family_index ) ) {
         selected_physical_device = physical_devices[i];
+        break;
       }
     }
     if( selected_physical_device == VK_NULL_HANDLE ) {
@@ -235,6 +236,7 @@ namespace ApiWithoutSecrets {
       if( (queue_family_properties[i].queueCount > 0) &&
           (queue_family_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) ) {
         queue_family_index = i;
+        std::cout << "Selected device: " << device_properties.deviceName << std::endl;
         return true;
       }
     }
