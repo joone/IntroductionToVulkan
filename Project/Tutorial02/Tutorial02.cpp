@@ -9,12 +9,30 @@
 // nor any responsibility to update it.
 
 #include "Tutorial02.h"
-#include "VulkanFunctions.h"
+#include "gpu/vulkan/vulkan_platform.h"
 
 namespace ApiWithoutSecrets {
 
+VulkanTutorial02Parameters::VulkanTutorial02Parameters() :
+      Instance( VK_NULL_HANDLE ),
+      PhysicalDevice( VK_NULL_HANDLE ),
+      Device( VK_NULL_HANDLE ),
+      GraphicsQueue( VK_NULL_HANDLE ),
+      PresentQueue( VK_NULL_HANDLE ),
+      GraphicsQueueFamilyIndex( 0 ),
+      PresentQueueFamilyIndex( 0 ),
+      PresentationSurface( VK_NULL_HANDLE ),
+      SwapChain( VK_NULL_HANDLE ),
+      PresentQueueCmdBuffers( 0 ),
+      PresentQueueCmdPool( VK_NULL_HANDLE ) {
+
+}
+
+VulkanTutorial02Parameters::~VulkanTutorial02Parameters(){
+
+} 
+
   Tutorial02::Tutorial02() :
-    VulkanLibrary(),
     Window(),
     Vulkan() {
   }
@@ -22,28 +40,13 @@ namespace ApiWithoutSecrets {
   bool Tutorial02::PrepareVulkan( OS::WindowParameters parameters ) {
     Window = parameters;
 
-    if( !LoadVulkanLibrary() ) {
-      return false;
-    }
-    if( !LoadExportedEntryPoints() ) {
-      return false;
-    }
-    if( !LoadGlobalLevelEntryPoints() ) {
-      return false;
-    }
     if( !CreateInstance() ) {
-      return false;
-    }
-    if( !LoadInstanceLevelEntryPoints() ) {
       return false;
     }
     if( !CreatePresentationSurface() ) {
       return false;
     }
     if( !CreateDevice() ) {
-      return false;
-    }
-    if( !LoadDeviceLevelEntryPoints() ) {
       return false;
     }
     if( !GetDeviceQueue() ) {
@@ -53,50 +56,6 @@ namespace ApiWithoutSecrets {
       return false;
     }
     return true;
-  }
-
-  bool Tutorial02::LoadVulkanLibrary() {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-    VulkanLibrary = LoadLibrary( "vulkan-1.dll" );
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-    VulkanLibrary = dlopen( "libvulkan.so.1", RTLD_NOW );
-#endif
-
-    if( VulkanLibrary == nullptr ) {
-      std::cout << "Could not load Vulkan library!" << std::endl;
-      return false;
-    }
-    return true;
-  }
-
-  bool Tutorial02::LoadExportedEntryPoints() {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-    #define LoadProcAddress GetProcAddress
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-    #define LoadProcAddress dlsym
-#endif
-
-#define VK_EXPORTED_FUNCTION( fun )                                                   \
-    if( !(fun = (PFN_##fun)LoadProcAddress( VulkanLibrary, #fun )) ) {                \
-      std::cout << "Could not load exported function: " << #fun << "!" << std::endl;  \
-      return false;                                                                   \
-    }
-
-#include "ListOfFunctions.inl"
-
-    return true;
-  }
-
-  bool Tutorial02::LoadGlobalLevelEntryPoints() {
-#define VK_GLOBAL_LEVEL_FUNCTION( fun )                                                   \
-    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( nullptr, #fun )) ) {                    \
-      std::cout << "Could not load global level function: " << #fun << "!" << std::endl;  \
-      return false;                                                                       \
-    }
-
-#include "ListOfFunctions.inl"
-
-      return true;
   }
 
   bool Tutorial02::CreateInstance() {
@@ -168,46 +127,7 @@ namespace ApiWithoutSecrets {
     return false;
   }
 
-  bool Tutorial02::LoadInstanceLevelEntryPoints() {
-#define VK_INSTANCE_LEVEL_FUNCTION( fun )                                                   \
-    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( Vulkan.Instance, #fun )) ) {              \
-      std::cout << "Could not load instance level function: " << #fun << "!" << std::endl;  \
-      return false;                                                                         \
-    }
-
-#include "ListOfFunctions.inl"
-
-      return true;
-  }
-
   bool Tutorial02::CreatePresentationSurface() {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-    VkWin32SurfaceCreateInfoKHR surface_create_info = {
-      VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,  // VkStructureType                  sType
-      nullptr,                                          // const void                      *pNext
-      0,                                                // VkWin32SurfaceCreateFlagsKHR     flags
-      Window.Instance,                                  // HINSTANCE                        hinstance
-      Window.Handle                                     // HWND                             hwnd
-    };
-
-    if( vkCreateWin32SurfaceKHR( Vulkan.Instance, &surface_create_info, nullptr, &Vulkan.PresentationSurface ) == VK_SUCCESS ) {
-      return true;
-    }
-
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-    VkXcbSurfaceCreateInfoKHR surface_create_info = {
-      VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,    // VkStructureType                  sType
-      nullptr,                                          // const void                      *pNext
-      0,                                                // VkXcbSurfaceCreateFlagsKHR       flags
-      Window.Connection,                                // xcb_connection_t*                connection
-      Window.Handle                                     // xcb_window_t                     window
-    };
-
-    if( vkCreateXcbSurfaceKHR( Vulkan.Instance, &surface_create_info, nullptr, &Vulkan.PresentationSurface ) == VK_SUCCESS ) {
-      return true;
-    }
-
-#elif defined(VK_USE_PLATFORM_XLIB_KHR)
     VkXlibSurfaceCreateInfoKHR surface_create_info = {
       VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,   // VkStructureType                sType
       nullptr,                                          // const void                    *pNext
@@ -218,8 +138,6 @@ namespace ApiWithoutSecrets {
     if( vkCreateXlibSurfaceKHR( Vulkan.Instance, &surface_create_info, nullptr, &Vulkan.PresentationSurface ) == VK_SUCCESS ) {
       return true;
     }
-
-#endif
 
     std::cout << "Could not create presentation surface!" << std::endl;
     return false;
@@ -243,6 +161,7 @@ namespace ApiWithoutSecrets {
     uint32_t selected_present_queue_family_index = UINT32_MAX;
 
     for( uint32_t i = 0; i < num_devices; ++i ) {
+      // Get queue familiy indexes.
       if( CheckPhysicalDeviceProperties( physical_devices[i], selected_graphics_queue_family_index, selected_present_queue_family_index ) ) {
         Vulkan.PhysicalDevice = physical_devices[i];
       }
@@ -395,18 +314,6 @@ namespace ApiWithoutSecrets {
     return true;
   }
 
-  bool Tutorial02::LoadDeviceLevelEntryPoints() {
-#define VK_DEVICE_LEVEL_FUNCTION( fun )                                                   \
-    if( !(fun = (PFN_##fun)vkGetDeviceProcAddr( Vulkan.Device, #fun )) ) {                \
-      std::cout << "Could not load device level function: " << #fun << "!" << std::endl;  \
-      return false;                                                                       \
-    }
-
-#include "ListOfFunctions.inl"
-
-      return true;
-  }
-
   bool Tutorial02::GetDeviceQueue() {
     vkGetDeviceQueue( Vulkan.Device, Vulkan.GraphicsQueueFamilyIndex, 0, &Vulkan.GraphicsQueue );
     vkGetDeviceQueue( Vulkan.Device, Vulkan.PresentQueueFamilyIndex, 0, &Vulkan.PresentQueue );
@@ -557,7 +464,7 @@ namespace ApiWithoutSecrets {
   VkExtent2D Tutorial02::GetSwapChainExtent( VkSurfaceCapabilitiesKHR &surface_capabilities ) {
     // Special value of surface extent is width == height == -1
     // If this is so we define the size by ourselves but it must fit within defined confines
-    if( surface_capabilities.currentExtent.width == -1 ) {
+    if( surface_capabilities.currentExtent.width == 0 ) {
       VkExtent2D swap_chain_extent = { 640, 480 };
       if( swap_chain_extent.width < surface_capabilities.minImageExtent.width ) {
         swap_chain_extent.width = surface_capabilities.minImageExtent.width;
@@ -849,14 +756,6 @@ namespace ApiWithoutSecrets {
 
     if( Vulkan.Instance != VK_NULL_HANDLE ) {
       vkDestroyInstance( Vulkan.Instance, nullptr );
-    }
-
-    if( VulkanLibrary ) {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-      FreeLibrary( VulkanLibrary );
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-      dlclose( VulkanLibrary );
-#endif
     }
   }
 

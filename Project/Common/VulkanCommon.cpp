@@ -9,43 +9,37 @@
 // nor any responsibility to update it.
 
 #include "VulkanCommon.h"
-#include "VulkanFunctions.h"
+#include "gpu/vulkan/vulkan_platform.h"
+
 
 namespace ApiWithoutSecrets {
 
+SwapChainParameters::SwapChainParameters() {}
+SwapChainParameters::~SwapChainParameters() {}
+SwapChainParameters::SwapChainParameters(const SwapChainParameters& para) = default;
+
   VulkanCommon::VulkanCommon() :
-    VulkanLibrary(),
     Window(),
     Vulkan() {
+    Vulkan.SwapChain.Handle = VK_NULL_HANDLE;
+    Vulkan.SwapChain.Format = VK_FORMAT_UNDEFINED;
   }
+
 
   bool VulkanCommon::PrepareVulkan( OS::WindowParameters parameters ) {
     Window = parameters;
 
-    if( !LoadVulkanLibrary() ) {
-      return false;
-    }
-    if( !LoadExportedEntryPoints() ) {
-      return false;
-    }
-    if( !LoadGlobalLevelEntryPoints() ) {
-      return false;
-    }
     if( !CreateInstance() ) {
       return false;
     }
-    if( !LoadInstanceLevelEntryPoints() ) {
-      return false;
-    }
+    
     if( !CreatePresentationSurface() ) {
       return false;
     }
     if( !CreateDevice() ) {
       return false;
     }
-    if( !LoadDeviceLevelEntryPoints() ) {
-      return false;
-    }
+
     if( !GetDeviceQueue() ) {
       return false;
     }
@@ -82,54 +76,6 @@ namespace ApiWithoutSecrets {
 
   const QueueParameters VulkanCommon::GetPresentQueue() const {
     return Vulkan.PresentQueue;
-  }
-
-  const SwapChainParameters VulkanCommon::GetSwapChain() const {
-    return Vulkan.SwapChain;
-  }
-
-  bool VulkanCommon::LoadVulkanLibrary() {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-    VulkanLibrary = LoadLibrary( "vulkan-1.dll" );
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-    VulkanLibrary = dlopen( "libvulkan.so.1", RTLD_NOW );
-#endif
-
-    if( VulkanLibrary == nullptr ) {
-      std::cout << "Could not load Vulkan library!" << std::endl;
-      return false;
-    }
-    return true;
-  }
-
-  bool VulkanCommon::LoadExportedEntryPoints() {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-    #define LoadProcAddress GetProcAddress
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-    #define LoadProcAddress dlsym
-#endif
-
-#define VK_EXPORTED_FUNCTION( fun )                                                   \
-    if( !(fun = (PFN_##fun)LoadProcAddress( VulkanLibrary, #fun )) ) {                \
-      std::cout << "Could not load exported function: " << #fun << "!" << std::endl;  \
-      return false;                                                                   \
-    }
-
-#include "ListOfFunctions.inl"
-
-    return true;
-  }
-
-  bool VulkanCommon::LoadGlobalLevelEntryPoints() {
-#define VK_GLOBAL_LEVEL_FUNCTION( fun )                                                   \
-    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( nullptr, #fun )) ) {                    \
-      std::cout << "Could not load global level function: " << #fun << "!" << std::endl;  \
-      return false;                                                                       \
-    }
-
-#include "ListOfFunctions.inl"
-
-      return true;
   }
 
   bool VulkanCommon::CreateInstance() {
@@ -190,18 +136,6 @@ namespace ApiWithoutSecrets {
       return false;
     }
     return true;
-  }
-
-  bool VulkanCommon::LoadInstanceLevelEntryPoints() {
-#define VK_INSTANCE_LEVEL_FUNCTION( fun )                                                   \
-    if( !(fun = (PFN_##fun)vkGetInstanceProcAddr( Vulkan.Instance, #fun )) ) {              \
-      std::cout << "Could not load instance level function: " << #fun << "!" << std::endl;  \
-      return false;                                                                         \
-    }
-
-#include "ListOfFunctions.inl"
-
-      return true;
   }
 
   bool VulkanCommon::CreatePresentationSurface() {
@@ -419,18 +353,6 @@ namespace ApiWithoutSecrets {
     return true;
   }
 
-  bool VulkanCommon::LoadDeviceLevelEntryPoints() {
-#define VK_DEVICE_LEVEL_FUNCTION( fun )                                                   \
-    if( !(fun = (PFN_##fun)vkGetDeviceProcAddr( Vulkan.Device, #fun )) ) {                \
-      std::cout << "Could not load device level function: " << #fun << "!" << std::endl;  \
-      return false;                                                                       \
-    }
-
-#include "ListOfFunctions.inl"
-
-      return true;
-  }
-
   bool VulkanCommon::GetDeviceQueue() {
     vkGetDeviceQueue( Vulkan.Device, Vulkan.GraphicsQueue.FamilyIndex, 0, &Vulkan.GraphicsQueue.Handle );
     vkGetDeviceQueue( Vulkan.Device, Vulkan.PresentQueue.FamilyIndex, 0, &Vulkan.PresentQueue.Handle );
@@ -565,7 +487,7 @@ namespace ApiWithoutSecrets {
         0,                                          // VkImageViewCreateFlags         flags
         Vulkan.SwapChain.Images[i].Handle,          // VkImage                        image
         VK_IMAGE_VIEW_TYPE_2D,                      // VkImageViewType                viewType
-        GetSwapChain().Format,                      // VkFormat                       format
+        Vulkan.SwapChain.Format,                      // VkFormat                       format
         {                                           // VkComponentMapping             components
           VK_COMPONENT_SWIZZLE_IDENTITY,              // VkComponentSwizzle             r
           VK_COMPONENT_SWIZZLE_IDENTITY,              // VkComponentSwizzle             g
@@ -636,7 +558,7 @@ namespace ApiWithoutSecrets {
   VkExtent2D VulkanCommon::GetSwapChainExtent( VkSurfaceCapabilitiesKHR &surface_capabilities ) {
     // Special value of surface extent is width == height == -1
     // If this is so we define the size by ourselves but it must fit within defined confines
-    if( surface_capabilities.currentExtent.width == -1 ) {
+    if( surface_capabilities.currentExtent.width == 0 ) {
       VkExtent2D swap_chain_extent = { 640, 480 };
       if( swap_chain_extent.width < surface_capabilities.minImageExtent.width ) {
         swap_chain_extent.width = surface_capabilities.minImageExtent.width;
@@ -730,14 +652,6 @@ namespace ApiWithoutSecrets {
 
     if( Vulkan.Instance != VK_NULL_HANDLE ) {
       vkDestroyInstance( Vulkan.Instance, nullptr );
-    }
-
-    if( VulkanLibrary ) {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-      FreeLibrary( VulkanLibrary );
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-      dlclose( VulkanLibrary );
-#endif
     }
   }
 

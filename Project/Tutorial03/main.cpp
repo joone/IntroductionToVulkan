@@ -15,7 +15,7 @@ int main( int argc, char **argv ) {
   ApiWithoutSecrets::Tutorial03 tutorial03;
 
   // Window creation
-  if( !window.Create( "03 - First Triangle" ) ) {
+  if( !window.Create( "02 - Swap chain" ) ) {
     return -1;
   }
 
@@ -24,7 +24,8 @@ int main( int argc, char **argv ) {
     return -1;
   }
 
-  // Tutorial 03
+  
+// Tutorial 03
   if( !tutorial03.CreateRenderPass() ) {
     return -1;
   }

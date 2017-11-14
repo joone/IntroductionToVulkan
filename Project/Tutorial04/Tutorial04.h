@@ -11,8 +11,8 @@
 #if !defined(TUTORIAL_04_HEADER)
 #define TUTORIAL_04_HEADER
 
-#include "VulkanCommon.h"
-#include "Tools.h"
+#include "../Common/VulkanCommon.h"
+#include "../Common/Tools.h"
 
 namespace ApiWithoutSecrets {
 
@@ -78,13 +78,9 @@ namespace ApiWithoutSecrets {
 
     static const size_t                   ResourcesCount = 3;
 
-    VulkanTutorial04Parameters() :
-      RenderPass( VK_NULL_HANDLE ),
-      GraphicsPipeline( VK_NULL_HANDLE ),
-      VertexBuffer(),
-      CommandPool( VK_NULL_HANDLE ),
-      RenderingResources( ResourcesCount ) {
-    }
+    ~VulkanTutorial04Parameters(); 
+    VulkanTutorial04Parameters(); 
+
   };
 
   // ************************************************************ //
@@ -95,7 +91,7 @@ namespace ApiWithoutSecrets {
   class Tutorial04 : public VulkanCommon {
   public:
     Tutorial04();
-    ~Tutorial04();
+    ~Tutorial04() override;
 
     bool    CreateRenderPass();
     bool    CreatePipeline();
@@ -107,7 +103,6 @@ namespace ApiWithoutSecrets {
   private:
     VulkanTutorial04Parameters  Vulkan;
 
-    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>     CreateShaderModule( const char* filename );
     Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> CreatePipelineLayout();
     bool                                                              AllocateBufferMemory( VkBuffer buffer, VkDeviceMemory *memory );
     bool                                                              CreateCommandPool( uint32_t queue_family_index, VkCommandPool *pool );

@@ -11,6 +11,32 @@ Special thanks to Slawomir Cygan for help and for patiently answering my many, m
 
 Vulkan drivers and other related resources can be found at https://www.khronos.org/vulkan/
 
+## Build using GN:
+Install vulkan library in your system.
+```
+$  sudo apt-get install libvulkan-dev
+```
+
+```
+$ cd ~/git/chromium/src
+$ git git@github.com:joone/IntroductionToVulkan.git
+$ gn args out/Release
+```
+Add the following configurations:
+
+```
+enable_vulkan = true
+use_sysroot = false
+import("//IntroductionToVulkan/build/vulkan.gni")
+```
+```
+$ ninja -C out/Release vulkan_test_2 vulkan_test_3 vulkan_test_4 vulkan_test_5 vulkan_test_6 vulkan_test_7
+```
+Run vulkan tests
+```
+$ out/Release/vulkan_test_2
+```
+
 ## Tutorials:
 
 ### [01 - The Beginning](./Project/Tutorial01/)
@@ -67,6 +93,7 @@ In this example staging resources are presented. They are used as an intermediat
 <img src="./Document/Images/06 - Descriptor Sets.png" height="96px" align="right">
 
 #### Using textures in shaders
+##### https://software.intel.com/en-us/articles/api-without-secrets-introduction-to-vulkan-part-6
 
 This tutorial shows what resources are needed and how they should be prepared to be able to use textures (or other shader resources) in shader programs.
 

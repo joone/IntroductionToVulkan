@@ -12,7 +12,7 @@
 #define VULKAN_COMMON_HEADER
 
 #include <vector>
-#include "vulkan.h"
+#include <vulkan/vulkan.h>
 #include "OperatingSystem.h"
 
 namespace ApiWithoutSecrets {
@@ -57,17 +57,13 @@ namespace ApiWithoutSecrets {
   // Vulkan SwapChain's parameters container class                //
   // ************************************************************ //
   struct SwapChainParameters {
+    SwapChainParameters(); 
+    SwapChainParameters(const SwapChainParameters& para);
+    ~SwapChainParameters(); 
     VkSwapchainKHR                Handle;
     VkFormat                      Format;
     std::vector<ImageParameters>  Images;
     VkExtent2D                    Extent;
-
-    SwapChainParameters() :
-      Handle( VK_NULL_HANDLE ),
-      Format( VK_FORMAT_UNDEFINED ),
-      Images(),
-      Extent() {
-    }
   };
 
   // ************************************************************ //
@@ -103,10 +99,11 @@ namespace ApiWithoutSecrets {
   class VulkanCommon : public OS::TutorialBase {
   public:
     VulkanCommon();
-    virtual ~VulkanCommon();
+    ~VulkanCommon() override;
 
     bool                          PrepareVulkan( OS::WindowParameters parameters );
-    virtual bool                  OnWindowSizeChanged() final override;
+    bool                  OnWindowSizeChanged() override;
+    bool                          CreateSwapChain();
 
   protected:
     VkPhysicalDevice              GetPhysicalDevice() const;
@@ -115,10 +112,10 @@ namespace ApiWithoutSecrets {
     const QueueParameters         GetGraphicsQueue() const;
     const QueueParameters         GetPresentQueue() const;
 
-    const SwapChainParameters     GetSwapChain() const;
+    const SwapChainParameters     GetSwapChain() const { return Vulkan.SwapChain;}
 
   private:
-    OS::LibraryHandle       VulkanLibrary;
+   // OS::LibraryHandle       VulkanLibrary;
     OS::WindowParameters    Window;
     VulkanCommonParameters  Vulkan;
 
@@ -132,7 +129,6 @@ namespace ApiWithoutSecrets {
     bool                          CheckPhysicalDeviceProperties( VkPhysicalDevice physical_device, uint32_t &graphics_queue_family_index, uint32_t &present_queue_family_index );
     bool                          LoadDeviceLevelEntryPoints();
     bool                          GetDeviceQueue();
-    bool                          CreateSwapChain();
     bool                          CreateSwapChainImageViews();
     virtual bool                  ChildOnWindowSizeChanged() = 0;
     virtual void                  ChildClear() = 0;

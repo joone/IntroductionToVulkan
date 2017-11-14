@@ -13,7 +13,7 @@
 #include <iostream>
 #include "Tools.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "../Include/stb_image.h"
 
 namespace ApiWithoutSecrets {
 

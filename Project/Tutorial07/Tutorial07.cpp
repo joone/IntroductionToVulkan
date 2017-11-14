@@ -9,9 +9,24 @@
 // nor any responsibility to update it.
 
 #include "Tutorial07.h"
-#include "VulkanFunctions.h"
+#include "../Common/vulkan_shader_module.h"
 
 namespace ApiWithoutSecrets {
+
+ VulkanTutorial07Parameters::VulkanTutorial07Parameters() :
+      RenderPass( VK_NULL_HANDLE ),
+      Image(),
+      DescriptorSet(),
+      PipelineLayout(),
+      GraphicsPipeline( VK_NULL_HANDLE ),
+      VertexBuffer(),
+      StagingBuffer(),
+      CommandPool( VK_NULL_HANDLE ),
+      RenderingResources( ResourcesCount ) {
+  }
+
+  VulkanTutorial07Parameters::~VulkanTutorial07Parameters() {} 
+
 
   Tutorial07::Tutorial07() :
     Vulkan() {
@@ -735,12 +750,49 @@ namespace ApiWithoutSecrets {
   }
 
   bool Tutorial07::CreatePipeline() {
-    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule> vertex_shader_module = CreateShaderModule( "Data07/vert.spv" );
-    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule> fragment_shader_module = CreateShaderModule( "Data07/frag.spv" );
+    std::string kVertexShaderSource = 
+        "#version 450\n"
+        "layout(set=0, binding=1) uniform u_UniformBuffer {"
+           "mat4 u_ProjectionMatrix;"
+        "};"
+        "layout(location = 0) in vec4 i_Position;"
+        "layout(location = 1) in vec2 i_Texcoord;"
+        "out gl_PerVertex"
+        "{" 
+        "  vec4 gl_Position;"
+        "};"
+        "layout(location = 0) out vec2 v_Texcoord;"
+        "void main() {"
+        "    gl_Position = u_ProjectionMatrix * i_Position;"
+        "    v_Texcoord = i_Texcoord;"
+        "}";
 
-    if( !vertex_shader_module || !fragment_shader_module ) {
+    VulkanShaderModule vertex_shader_module(GetDevice());
+    vertex_shader_module.InitializeGLSL(
+        VulkanShaderModule::ShaderType::VERTEX,"vetext" , "main", kVertexShaderSource);
+
+    const std::string kFragShaderSource = 
+        "#version 450\n"
+        "layout(set=0, binding=0) uniform sampler2D u_Texture;"
+        "layout(location = 0) in vec2 v_Texcoord;"
+        "layout(location = 0) out vec4 o_Color;"
+        "void main() {"
+        "  o_Color = texture( u_Texture, v_Texcoord );"
+        "}";
+
+    VulkanShaderModule fragment_shader_module(GetDevice());
+    fragment_shader_module.InitializeGLSL(
+        VulkanShaderModule::ShaderType::FRAGMENT,"fragment" , "main", kFragShaderSource);
+
+    if(!vertex_shader_module.IsValid()) {
+      std::cout << "vertext shader error = " << vertex_shader_module.GetErrorMessages();
       return false;
-    }
+    }   
+
+    if(!fragment_shader_module.IsValid() ) { 
+      std::cout << "fragment shader error = " << fragment_shader_module.GetErrorMessages();
+      return false;
+    }   
 
     std::vector<VkPipelineShaderStageCreateInfo> shader_stage_create_infos = {
       // Vertex shader
@@ -749,7 +801,7 @@ namespace ApiWithoutSecrets {
         nullptr,                                                    // const void                                    *pNext
         0,                                                          // VkPipelineShaderStageCreateFlags               flags
         VK_SHADER_STAGE_VERTEX_BIT,                                 // VkShaderStageFlagBits                          stage
-        vertex_shader_module.Get(),                                 // VkShaderModule                                 module
+        vertex_shader_module.handle(),                                 // VkShaderModule                                 module
         "main",                                                     // const char                                    *pName
         nullptr                                                     // const VkSpecializationInfo                    *pSpecializationInfo
       },
@@ -759,7 +811,7 @@ namespace ApiWithoutSecrets {
         nullptr,                                                    // const void                                    *pNext
         0,                                                          // VkPipelineShaderStageCreateFlags               flags
         VK_SHADER_STAGE_FRAGMENT_BIT,                               // VkShaderStageFlagBits                          stage
-        fragment_shader_module.Get(),                               // VkShaderModule                                 module
+        fragment_shader_module.handle(),                               // VkShaderModule                                 module
         "main",                                                     // const char                                    *pName
         nullptr                                                     // const VkSpecializationInfo                    *pSpecializationInfo
       }
@@ -904,6 +956,9 @@ namespace ApiWithoutSecrets {
       std::cout << "Could not create graphics pipeline!" << std::endl;
       return false;
     }
+
+    vertex_shader_module.Destroy();
+    fragment_shader_module.Destroy();
     return true;
   }
 
@@ -1082,7 +1137,7 @@ namespace ApiWithoutSecrets {
     vkCmdPipelineBarrier( command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier_from_present_to_draw );
 
     VkClearValue clear_value = {
-      { 1.0f, 0.8f, 0.4f, 0.0f },                         // VkClearColorValue                      color
+      {{ 1.0f, 0.8f, 0.4f, 0.0f }},                         // VkClearColorValue                      color
     };
 
     VkRenderPassBeginInfo render_pass_begin_info = {

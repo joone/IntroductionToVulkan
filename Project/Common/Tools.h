@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 #include <array>
-#include "vulkan.h"
+#include <vulkan/vulkan.h>
 
 namespace ApiWithoutSecrets {
 

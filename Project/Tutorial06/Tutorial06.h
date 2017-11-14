@@ -11,8 +11,8 @@
 #if !defined(TUTORIAL_06_HEADER)
 #define TUTORIAL_06_HEADER
 
-#include "VulkanCommon.h"
-#include "Tools.h"
+#include "../Common/VulkanCommon.h"
+#include "../Common/Tools.h"
 
 namespace ApiWithoutSecrets {
 
@@ -99,17 +99,8 @@ namespace ApiWithoutSecrets {
 
     static const size_t                   ResourcesCount = 3;
 
-    VulkanTutorial06Parameters() :
-      RenderPass( VK_NULL_HANDLE ),
-      Image(),
-      DescriptorSet(),
-      PipelineLayout(),
-      GraphicsPipeline( VK_NULL_HANDLE ),
-      VertexBuffer(),
-      StagingBuffer(),
-      CommandPool( VK_NULL_HANDLE ),
-      RenderingResources( ResourcesCount ) {
-    }
+    VulkanTutorial06Parameters();
+    ~VulkanTutorial06Parameters();
   };
 
   // ************************************************************ //
@@ -120,7 +111,7 @@ namespace ApiWithoutSecrets {
   class Tutorial06 : public VulkanCommon {
   public:
     Tutorial06();
-    ~Tutorial06();
+    ~Tutorial06() override;
 
     bool    CreateRenderingResources();
     bool    CreateStagingBuffer();

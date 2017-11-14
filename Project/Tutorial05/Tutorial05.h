@@ -11,8 +11,8 @@
 #if !defined(TUTORIAL_05_HEADER)
 #define TUTORIAL_05_HEADER
 
-#include "VulkanCommon.h"
-#include "Tools.h"
+#include "../Common/VulkanCommon.h"
+#include "../Common/Tools.h"
 
 namespace ApiWithoutSecrets {
 
@@ -79,14 +79,8 @@ namespace ApiWithoutSecrets {
 
     static const size_t                   ResourcesCount = 3;
 
-    VulkanTutorial05Parameters() :
-      RenderPass( VK_NULL_HANDLE ),
-      GraphicsPipeline( VK_NULL_HANDLE ),
-      VertexBuffer(),
-      StagingBuffer(),
-      CommandPool( VK_NULL_HANDLE ),
-      RenderingResources( ResourcesCount ) {
-    }
+    VulkanTutorial05Parameters(); 
+    ~VulkanTutorial05Parameters();
   };
 
   // ************************************************************ //
@@ -97,7 +91,7 @@ namespace ApiWithoutSecrets {
   class Tutorial05 : public VulkanCommon {
   public:
     Tutorial05();
-    ~Tutorial05();
+    ~Tutorial05() override;
 
     bool    CreateRenderingResources();
     bool    CreateRenderPass();
@@ -115,7 +109,6 @@ namespace ApiWithoutSecrets {
     bool                                                              AllocateCommandBuffers( VkCommandPool pool, uint32_t count, VkCommandBuffer *command_buffers );
     bool                                                              CreateSemaphore( VkSemaphore *semaphore );
     bool                                                              CreateFence( VkFenceCreateFlags flags, VkFence *fence );
-    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>     CreateShaderModule( const char* filename );
     Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> CreatePipelineLayout();
     bool                                                              CreateBuffer( VkBufferUsageFlags usage, VkMemoryPropertyFlagBits memoryProperty, BufferParameters &buffer );
     bool                                                              AllocateBufferMemory( VkBuffer buffer, VkMemoryPropertyFlagBits property, VkDeviceMemory *memory );

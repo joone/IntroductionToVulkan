@@ -9,9 +9,19 @@
 // nor any responsibility to update it.
 
 #include "Tutorial03.h"
-#include "VulkanFunctions.h"
+#include "../Common/vulkan_shader_module.h"
 
 namespace ApiWithoutSecrets {
+  VulkanTutorial03Parameters::~VulkanTutorial03Parameters() { }
+  VulkanTutorial03Parameters::VulkanTutorial03Parameters() :
+      RenderPass( VK_NULL_HANDLE ),
+      Framebuffers(),
+      GraphicsPipeline( VK_NULL_HANDLE ),
+      ImageAvailableSemaphore( VK_NULL_HANDLE ),
+      RenderingFinishedSemaphore( VK_NULL_HANDLE ),
+      GraphicsCommandPool( VK_NULL_HANDLE ),
+      GraphicsCommandBuffers() {
+   }
 
   Tutorial03::Tutorial03() :
     Vulkan() {
@@ -99,29 +109,6 @@ namespace ApiWithoutSecrets {
     return true;
   }
 
-  Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule> Tutorial03::CreateShaderModule( const char* filename ) {
-    const std::vector<char> code = Tools::GetBinaryFileContents( filename );
-    if( code.size() == 0 ) {
-      return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
-    }
-
-    VkShaderModuleCreateInfo shader_module_create_info = {
-      VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,    // VkStructureType                sType
-      nullptr,                                        // const void                    *pNext
-      0,                                              // VkShaderModuleCreateFlags      flags
-      code.size(),                                    // size_t                         codeSize
-      reinterpret_cast<const uint32_t*>(&code[0])     // const uint32_t                *pCode
-    };
-
-    VkShaderModule shader_module;
-    if( vkCreateShaderModule( GetDevice(), &shader_module_create_info, nullptr, &shader_module ) != VK_SUCCESS ) {
-      std::cout << "Could not create shader module from a \"" << filename << "\" file!" << std::endl;
-      return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
-    }
-
-    return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>( shader_module, vkDestroyShaderModule, GetDevice() );
-  }
-
   Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> Tutorial03::CreatePipelineLayout() {
     VkPipelineLayoutCreateInfo layout_create_info = {
       VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,  // VkStructureType                sType
@@ -143,10 +130,37 @@ namespace ApiWithoutSecrets {
   }
 
   bool Tutorial03::CreatePipeline() {
-    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule> vertex_shader_module = CreateShaderModule( "Data03/vert.spv" );
-    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule> fragment_shader_module = CreateShaderModule( "Data03/frag.spv" );
+   const std::string kVertexShaderSource = 
+       "#version 450\n"
+       "out gl_PerVertex\n"
+       "{"
+       "  vec4 gl_Position;"
+       "};\n"
+       "void main() {"
+       "    vec2 pos[3] = vec2[3]( vec2(-0.7, 0.7), vec2(0.7, 0.7), vec2(0.0, -0.7) );"
+       "    gl_Position = vec4( pos[gl_VertexIndex], 0.0, 1.0 );"
+       "}";
+    VulkanShaderModule vertex_shader_module(GetDevice());
+    vertex_shader_module.InitializeGLSL(
+      VulkanShaderModule::ShaderType::VERTEX,"vetext" , "main", kVertexShaderSource);
 
-    if( !vertex_shader_module || !fragment_shader_module ) {
+    const std::string kFragShaderSource = 
+      "#version 450\n"
+      "layout(location = 0) out vec4 out_Color;\n"
+      "void main() {"
+      "  out_Color = vec4( 0.0, 0.4, 1.0, 1.0 );\n"
+      "}";
+    VulkanShaderModule fragment_shader_module(GetDevice());
+    fragment_shader_module.InitializeGLSL(
+      VulkanShaderModule::ShaderType::FRAGMENT,"fragment" , "main", kFragShaderSource);
+
+    if( !vertex_shader_module.IsValid()) {
+      std::cout << "vertext shader error = " << vertex_shader_module.GetErrorMessages();
+      return false;
+    }
+
+    if( !fragment_shader_module.IsValid() ) {
+      std::cout << "fragment shader error = " << fragment_shader_module.GetErrorMessages();
       return false;
     }
 
@@ -157,7 +171,7 @@ namespace ApiWithoutSecrets {
         nullptr,                                                    // const void                                    *pNext
         0,                                                          // VkPipelineShaderStageCreateFlags               flags
         VK_SHADER_STAGE_VERTEX_BIT,                                 // VkShaderStageFlagBits                          stage
-        vertex_shader_module.Get(),                                 // VkShaderModule                                 module
+        vertex_shader_module.handle(),                                 // VkShaderModule                                 module
         "main",                                                     // const char                                    *pName
         nullptr                                                     // const VkSpecializationInfo                    *pSpecializationInfo
       },
@@ -167,7 +181,7 @@ namespace ApiWithoutSecrets {
         nullptr,                                                    // const void                                    *pNext
         0,                                                          // VkPipelineShaderStageCreateFlags               flags
         VK_SHADER_STAGE_FRAGMENT_BIT,                               // VkShaderStageFlagBits                          stage
-        fragment_shader_module.Get(),                               // VkShaderModule                                 module
+        fragment_shader_module.handle(),                               // VkShaderModule                                 module
         "main",                                                     // const char                                    *pName
         nullptr                                                     // const VkSpecializationInfo                    *pSpecializationInfo
       }
@@ -303,6 +317,9 @@ namespace ApiWithoutSecrets {
       std::cout << "Could not create graphics pipeline!" << std::endl;
       return false;
     }
+
+    vertex_shader_module.Destroy();
+    fragment_shader_module.Destroy();
     return true;
   }
 
@@ -384,7 +401,7 @@ namespace ApiWithoutSecrets {
     };
 
     VkClearValue clear_value = {
-      { 1.0f, 0.8f, 0.4f, 0.0f },                     // VkClearColorValue              color
+      { {1.0f, 0.8f, 0.4f, 0.0f} },                     // VkClearColorValue              color
     };
 
     const std::vector<ImageParameters>& swap_chain_images = GetSwapChain().Images;

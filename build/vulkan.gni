@@ -1,0 +1,4 @@
+root_extra_deps = [
+  "//IntroductionToVulkan/Project:vulkan_test_2", 
+  "//IntroductionToVulkan/Project:vulkan_test_3",
+]

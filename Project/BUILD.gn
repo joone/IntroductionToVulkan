@@ -1,0 +1,114 @@
+config("internal_config") {
+  defines = [ "ENABLE_VULKAN" ]
+  defines += [ "VULKAN_IMPLEMENTATION" ]
+
+  include_dirs = [ "/usr/include" ]
+  if (current_cpu == "x64") {
+      lib_dirs = [
+        "/usr/lib/x86_64-linux-gnu",
+      ]
+  }
+  deps = [
+    "//base",
+    "//gpu/vulkan",
+  ]
+
+  libs = [ "vulkan", "stdc++" ]
+
+  deps += [ 
+    "//ui/gfx/x",
+    "//skia",
+  ]
+}
+
+executable("vulkan_test_2") {
+  sources = [
+    "Tutorial02/main.cpp",
+    "Tutorial02/Tutorial02.cpp",
+    "Common/OperatingSystem.cpp",
+  ]
+
+  configs += [ "//build/config/linux:x11", ":internal_config" ]
+}
+
+executable("vulkan_test_3") {
+  sources = [
+    "Tutorial03/main.cpp",
+    "Tutorial03/Tutorial03.cpp",
+    "Common/VulkanCommon.cpp",
+    "Common/OperatingSystem.cpp",
+    "Common/vulkan_shader_module.cc",
+  ]
+  deps = [ 
+    "//third_party/shaderc:libshaderc",
+    "//ui/base",
+  ]
+
+  configs += [ "//build/config/linux:x11", ":internal_config" ]
+}
+
+executable("vulkan_test_4") {
+  sources = [
+    "Tutorial04/main.cpp",
+    "Tutorial04/Tutorial04.cpp",
+    "Common/VulkanCommon.cpp",
+    "Common/OperatingSystem.cpp",
+    "Common/vulkan_shader_module.cc",
+  ]
+  deps = [ 
+    "//third_party/shaderc:libshaderc",
+    "//ui/base",
+  ]
+
+  configs += [ "//build/config/linux:x11", ":internal_config" ]
+}
+
+executable("vulkan_test_5") {
+  sources = [
+    "Tutorial05/main.cpp",
+    "Tutorial05/Tutorial05.cpp",
+    "Common/VulkanCommon.cpp",
+    "Common/OperatingSystem.cpp",
+    "Common/vulkan_shader_module.cc",
+  ]
+  deps = [ 
+    "//third_party/shaderc:libshaderc",
+    "//ui/base",
+  ]
+
+  configs += [ "//build/config/linux:x11", ":internal_config" ]
+}
+
+executable("vulkan_test_6") {
+  sources = [
+    "Tutorial06/main.cpp",
+    "Tutorial06/Tutorial06.cpp",
+    "Common/Tools.cpp",
+    "Common/VulkanCommon.cpp",
+    "Common/OperatingSystem.cpp",
+    "Common/vulkan_shader_module.cc",
+  ]
+  deps = [ 
+    "//third_party/shaderc:libshaderc",
+    "//ui/base",
+  ]
+
+  configs += [ "//build/config/linux:x11", ":internal_config" ]
+}
+
+executable("vulkan_test_7") {
+  sources = [
+    "Tutorial07/main.cpp",
+    "Tutorial07/Tutorial07.cpp",
+    "Common/Tools.cpp",
+    "Common/VulkanCommon.cpp",
+    "Common/OperatingSystem.cpp",
+    "Common/vulkan_shader_module.cc",
+  ]
+  deps = [ 
+    "//third_party/shaderc:libshaderc",
+    "//ui/base",
+  ]
+
+  configs += [ "//build/config/linux:x11", ":internal_config" ]
+}

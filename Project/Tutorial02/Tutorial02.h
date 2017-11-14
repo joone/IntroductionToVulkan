@@ -12,8 +12,8 @@
 #define TUTORIAL_02_HEADER
 
 #include <vector>
-#include "vulkan.h"
-#include "OperatingSystem.h"
+#include <vulkan/vulkan.h>  
+#include "../Common/OperatingSystem.h"
 
 namespace ApiWithoutSecrets {
 
@@ -23,6 +23,8 @@ namespace ApiWithoutSecrets {
   // Vulkan specific parameters                                   //
   // ************************************************************ //
   struct VulkanTutorial02Parameters {
+    VulkanTutorial02Parameters();
+    ~VulkanTutorial02Parameters();
     VkInstance                    Instance;
     VkPhysicalDevice              PhysicalDevice;
     VkDevice                      Device;
@@ -37,19 +39,6 @@ namespace ApiWithoutSecrets {
     VkSemaphore                   ImageAvailableSemaphore;
     VkSemaphore                   RenderingFinishedSemaphore;
 
-    VulkanTutorial02Parameters() :
-      Instance( VK_NULL_HANDLE ),
-      PhysicalDevice( VK_NULL_HANDLE ),
-      Device( VK_NULL_HANDLE ),
-      GraphicsQueue( VK_NULL_HANDLE ),
-      PresentQueue( VK_NULL_HANDLE ),
-      GraphicsQueueFamilyIndex( 0 ),
-      PresentQueueFamilyIndex( 0 ),
-      PresentationSurface( VK_NULL_HANDLE ),
-      SwapChain( VK_NULL_HANDLE ),
-      PresentQueueCmdBuffers( 0 ),
-      PresentQueueCmdPool( VK_NULL_HANDLE ) {
-    }
   };
 
   // ************************************************************ //
@@ -60,7 +49,7 @@ namespace ApiWithoutSecrets {
   class Tutorial02 : public OS::TutorialBase {
   public:
     Tutorial02();
-    ~Tutorial02();
+    ~Tutorial02() override;
 
     bool PrepareVulkan( OS::WindowParameters parameters );
     bool CreateSwapChain();
@@ -68,24 +57,25 @@ namespace ApiWithoutSecrets {
     bool CreateCommandBuffers();
     bool Draw() override;
 
+    //bool CreateRenderPass();
+    //bool CreateFramebuffers(); 
   private:
-    OS::LibraryHandle           VulkanLibrary;
+    //OS::LibraryHandle           VulkanLibrary;
     OS::WindowParameters        Window;
     VulkanTutorial02Parameters  Vulkan;
 
     bool                          LoadVulkanLibrary();
-    bool                          LoadExportedEntryPoints();
-    bool                          LoadGlobalLevelEntryPoints();
     bool                          CreateInstance();
     bool                          LoadInstanceLevelEntryPoints();
     bool                          CreatePresentationSurface();
     bool                          CreateDevice();
     bool                          CheckPhysicalDeviceProperties( VkPhysicalDevice physical_device, uint32_t &graphics_queue_family_index, uint32_t &present_queue_family_index );
-    bool                          LoadDeviceLevelEntryPoints();
     bool                          GetDeviceQueue();
     bool                          CreateSemaphores();
     bool                          RecordCommandBuffers();
     void                          Clear();
+    
+   
 
     bool                          CheckExtensionAvailability( const char *extension_name, const std::vector<VkExtensionProperties> &available_extensions );
     uint32_t                      GetSwapChainNumImages( VkSurfaceCapabilitiesKHR &surface_capabilities );

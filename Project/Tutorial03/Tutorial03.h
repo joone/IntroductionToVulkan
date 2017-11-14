@@ -11,8 +11,8 @@
 #if !defined(TUTORIAL_03_HEADER)
 #define TUTORIAL_03_HEADER
 
-#include "VulkanCommon.h"
-#include "Tools.h"
+#include "../Common/VulkanCommon.h"
+#include "../Common/Tools.h"
 
 namespace ApiWithoutSecrets {
 
@@ -30,15 +30,8 @@ namespace ApiWithoutSecrets {
     VkCommandPool                       GraphicsCommandPool;
     std::vector<VkCommandBuffer>        GraphicsCommandBuffers;
 
-    VulkanTutorial03Parameters() :
-      RenderPass( VK_NULL_HANDLE ),
-      Framebuffers(),
-      GraphicsCommandPool( VK_NULL_HANDLE ),
-      GraphicsCommandBuffers(),
-      GraphicsPipeline( VK_NULL_HANDLE ),
-      ImageAvailableSemaphore( VK_NULL_HANDLE ),
-      RenderingFinishedSemaphore( VK_NULL_HANDLE ) {
-    }
+    ~VulkanTutorial03Parameters(); 
+    VulkanTutorial03Parameters(); 
   };
 
   // ************************************************************ //
@@ -49,7 +42,7 @@ namespace ApiWithoutSecrets {
   class Tutorial03 : public VulkanCommon {
   public:
     Tutorial03();
-    ~Tutorial03();
+    ~Tutorial03() override;
 
     bool    CreateRenderPass();
     bool    CreateFramebuffers();
@@ -63,7 +56,6 @@ namespace ApiWithoutSecrets {
   private:
     VulkanTutorial03Parameters  Vulkan;
 
-    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>     CreateShaderModule( const char* filename );
     Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout> CreatePipelineLayout();
     bool                                                              CreateCommandPool( uint32_t queue_family_index, VkCommandPool *pool );
     bool                                                              AllocateCommandBuffers( VkCommandPool pool, uint32_t count, VkCommandBuffer *command_buffers );
